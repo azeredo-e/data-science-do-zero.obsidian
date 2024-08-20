@@ -1,5 +1,7 @@
 # Regressão Linear
 
+> Notas sobre notação. Por enquanto utilizo a mesma notação que Andrew Ng no curso CS229 em Stanford a não ser que eu diga explicitamente o contrário. Se no futuro eu mudar tentarei ser consistente ao longo de todos os arquivos.
+
 Digamos que tenhamos um conjunto de dados com duas informações: o preço de venda de casas em uma certa região, e a metragem do local (para fins desse exemplo digamos que os valores estão em metros quadrados). Podemos expor esse conjunto graficamente através do seguinte gráfico.
 
 ![](images/houseprices_scatter.png)
@@ -28,7 +30,7 @@ $$p = b + m*A$$
 
 Onde $p$ é o preço da casa, $A$ é a metragem dela e $b$ e $m$ são informações para a construção da curva de regressão. $m$ controla a inclinação da curva, valores mais baixos deixam ela inclinada e vice-versa; no nosso cenário de casas podemos imaginar $m$ como sendo o quão "sensível" é o preço de uma casa a metragem, caso tenhamos um $m$ muito alto, mesmo um aumento pequeno em metragem se reflete em um grande aumento de preço.
 
-Com essa equação da reta definida chegamos então ao ponto importante, como determinar essa equação se tudo que temos é um conjunto de pontos? Existem duas maneiras de fazer isso, a primeira segue um método estatístico conhecido como Mínimos Quadrados Ordinários (OLS, em inglês, *Ordinary Least Squares*) e o segundo é uma abordagem utilizando aprendizado de máquina.
+Com essa equação da reta definida chegamos então ao ponto importante, como determinar essa equação se tudo que temos é um conjunto de pontos? Existem duas maneiras de fazer isso, a primeira segue um método estatístico conhecido como Mínimos Quadrados Ordinários (OLS, em inglês, *Ordinary Least Squares*) e o segundo é uma abordagem utilizando o Método de Gradiente.
 
 Nas próximas sessões ambos os métodos para resolver esse problema vão ser explicados tanto de maneira intuitiva quanto a sua definição formal na matemática. O foco das sessões será na explicação do método, porém em quadros de destaque será continuado o exercício proposto acima de prever preço de imóveis usando regressão linear.
 
@@ -44,7 +46,45 @@ Regressão Linear é um método de aprendizado de máquina muito utilizado para 
 
 Uma regressão linear consegue isso usando uma parte do nosso conjunto de dados como dados de treino e a outra parte como dados de teste. Os dados de treino são usados para treinar o modelo, o algoritmo por trás da regressão usa esses valores para tentar achar a reta ideal que cruza sobre os pontos e os de teste são usados para poder validar os resultados dessa reta em um conjunto de dados ainda não apresentado para o modelo durante o processo de treino.
 
+Um ponto importante no que tange a divisão de variáveis entre treino e teste, é a a forma como o algoritmo "vê" o conjunto de treino. Chamamos a Regressão Linear de um algoritmo do tipo de **aprendizado supervisionado** (em inglês, *supervised learning*) ou seja, ao alimentarmos o modelo com os dados de treino informamos para ele os resultados desse dados de treino para ele poder usar esse par de informações para poder criar a reta que melhor se encaixa aos dados. Uma melhor explicação sobre paradigmas de aprendizado de máquina podem ser encontrados na seção de referência ~~ainda em construção~~.
+
+O processo de como o algoritmo constrói uma reta que melhor se encaixa nos dados é o que separa entre ela poder ser classificada como um método de aprendizado de máquina ou não. MQO é, de forma geral, considerado um método estatístico não vinculado ao aprendizado de máquina, enquanto Método de Gradiente é (para mais detalhes nessa discussão entre estatistica e ML ler a seção referente ~~ainda em construção~~). 
+
+> [!NOTE] ML vs Estatística
+Seja pelo método de MQO ou Método do Gradiente (em inglês, *gradient descent*) o objetivo final da regressão linear é o mesmo independente do método escolhido e por isso a escolha do método depende muito mais 
+
+Regressão linear é, então, um algoritmo de aprendizado de máquina de aprendizado supervisionado que tenta melhor encaixar os dados a uma reta. Essa reta terá então o seguinte formato:
+
+$$h_{\theta}(x) = \theta_0 + \theta_1x_1$$
+
+Onde $h$ é a nossa curva de regressão; $\theta_0$ é o intercepto; $\theta_1$ é o coeficiente angular da reta; e $x_1$ o nosso conjunto de dados. $\theta_0$ e $\theta_1$ são muitas vezes chamados de **parâmetros** do nosso modelo. O olhar atento vai notar que essa equação é muito similar a equação da reta que vimos anteriormente nesse capítulo, só temos que mudar os $\theta$ por $m$ e $b$ e é a mesma equação! A manipulação dos valores nos parâmetros nos dá então qualquer reta que pode ser representada num espaço cartesiano. **O nosso objetivo é, então, encontrar o conjunto de $\theta$ que gera a reta que melhor se encaixa no conjunto de dados**.
+
+O intercepto é as vezes chamado de "viés", em termos geométricos, ele nos diz onde que a reta corta o eixo y quando o valor de $x_1$ é igual a 0. Em termos de aprendizado de máquina ele nos diz qual a condição inicial do nosso modelo.
+
+Importante ressaltar que aqui estamos lidando com o caso de que o nosso conjunto de dados tem apenas uma variável, $x_1$, caso ele tenha mais variáveis elas devem ser incluídas na equação geral do modelo da seguinte forma.
+
+$$h_{\theta}(x) = \theta_0 + \theta_1x_1 + \theta_2x_2 + \dots + \theta_nx_n$$
+
+Ou,
+
+$$h_{\theta}(x) = \sum_{i=0}^{n}\theta_ix_i = \theta^Tx$$
+
+O olhar atento vai ver que ignorei que incorporei o intercepto no soma, isso porque estou assumindo $\theta$ e $x$ e como sendo um conjunto de vetores com cada um dos valores $i$, assim convencionamos que $x_0 = 1$.
+
+Onde $n$ é o número de variáveis do modelo. Ao longo dessa primeira parte do capítulo vou lidar somente com o caso de uma variável, as interpretações do caso de múltiplas variáveis será apresentado em outro momento.
+
+Dado um conjunto de $\theta_0$ e $\theta_1$ iniciais, como podemos saber o quão distante eles estão do valor ideal? Para isso vamos definir algo que chamaremos de Função de Custo (as vezes chamada de "Função de Perda") que medirá o quão perto $h_{\theta}(x_i)$ está do valor verdadeiro $y^i$. Definiremos a Função de Custo $J(\theta)$ como:
+
+$$J(\theta) = \frac{1}{2}\sum_{i=1}^{m}(h_{\theta}(x^i)-y^i)^2$$
+
+Embora essa equação pareça assustadora a primeira vista, ela é fácil de compreender caso a quebremos em seus componentes. Uma soma de 1 até $m$, onde $m$ é o número de observações dos dados, do quadrado da diferença entre o valor estimado ($h_{\theta}(x^i)$) e o valor real ($y^i$).
+
+
+
+
+
 ---
+
 ## Referências
 
 https://www.youtube.com/watch?v=n03pSsA7NtQ
