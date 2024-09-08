@@ -101,23 +101,36 @@ Tendo em mãos uma função que podemos usar para avaliar o resultado das nossas
 
 $$\theta_j := \theta_j - \alpha \frac{\partial}{\partial \theta_j}J(\theta)$$
 
-$\alpha$, a chamado "taxa de aprendizagem", é um hiper parâmetro que define o quão rápido ou devagar o nosso algoritmo vai convergir para uma resposta, mais a frente será um pouco mais comentado como ele é escolhido.
+Expandindo a derivada parcial temos que,
+
+$$\theta_j := \theta_j - \alpha \sum_{i=1}^m(y^{(i)}-h_{\theta}(x^{(i)})x_j^{(i)} \space \text{, para cada j}$$
+
+Onde $\alpha$, a chamado "taxa de aprendizagem", é um hiperparâmetro que define o quão rápido ou devagar o nosso algoritmo vai convergir para uma resposta, mais a frente será um pouco mais comentado como ele é escolhido. No lado esquerdo da equação temos a derivada parcial com respeito a $\theta_j$ da função de custo, caso tenham interesse, a expansão dela está logo abaixo.
 
 > [!NOTE] Notação
 > Eu uso o símbolo $:=$ em vez de somente um símbolo igual porque estamos atribuindo um valor a $\theta_j$ e não afirmando que ele é igual a algo. É o mesmo conceito de atribuição em ciência da computação como por exemplo $a := a + 1$ .
 
-No lado esquerdo da equação temos a derivada parcial com respeito a $\theta_j$ da função de custo, não vou expandir ela aqui, mas podem ver a expansão no destaque logo abaixo. 
+$$
+\begin{align}
+\frac{\partial}{\partial \theta_j} J(\theta) &= \frac{\partial}{\partial \theta_j}\frac{1}{2}\sum_{i=1}^{m}(h_{\theta}(x^{(i)})-y^{(i)})^2 \newline
+&= 2 \cdot \frac{1}{2} (x)-y)^2 \cdot \frac{\partial}{\partial \theta_j} (h_{\theta}(x)-y)^2 \newline
+&= (h_{\theta}(x)-y)^2 \cdot \frac{\partial}{\partial \theta_j} \left(\sum_{i=0}^n\theta_ix_i-y \right) \newline
+&= (h_{\theta}(x)-y)x_j
+\end{align}
+$$
+
+
 
 > [!example]- Sobre a derivada parcial
 > $$
 > \begin{align}
-> \frac{\partial}{\partial \theta_j} J(\theta) &= \frac{\partial}{\partial \theta_j}\frac{1}{2}(h_{\theta}(h_{\theta}(x)-y)^2 \newline
+> \frac{\partial}{\partial \theta_j} J(\theta) &= \frac{\partial}{\partial \theta_j}\frac{1}{2}((h_{\theta}(x)-y)^2 \newline
 > &= 2 \cdot \frac{1}{2} (x)-y)^2 \cdot \frac{\partial}{\partial \theta_j} (h_{\theta}(x)-y)^2 \newline
 > &= (h_{\theta}(x)-y)^2 \cdot \frac{\partial}{\partial \theta_j} \left(\sum_{i=0}^n\theta_ix_i-y \right) \newline
 > &= (h_{\theta}(x)-y)x_j
 > \end{align}
 > $$
-> Há dois pontos que podem pedir uma explicação a mais. O primeiro está na segunda linha onde foi usada a regra da cadeia e por isso a a diferença do valor estimado e do real aparece duas vezes. O segundo ponto é na terceira linha, onde substituímos a função $h_{\theta}(x)$ pela sua definição, a somatória dos termos e parâmetros.
+> Há três pontos que podem pedir uma explicação a mais. O primeiro está na segunda linha onde foi usada a regra da cadeia e por isso a a diferença do valor estimado e do real aparece duas vezes. O segundo ponto é na terceira linha, onde substituímos a função $h_{\theta}(x)$ pela sua definição, a somatória dos termos e parâmetros. O último é derivada parcial da soma, para simplificar o exemplo contamos que há somente uma *feature*, $x$, por isso o resultado acaba sendo somente $x_j$.
 
 
 
