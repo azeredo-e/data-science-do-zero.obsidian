@@ -6,7 +6,7 @@ ADEQUAR NOTAÇÃO DEPOIS
 
 Digamos que tenhamos um conjunto de dados com duas informações: o preço de venda de casas em uma certa região, e a metragem do local (para fins desse exemplo digamos que os valores estão em metros quadrados). Podemos expor esse conjunto graficamente através do seguinte gráfico.
 
-![](images/houseprices_scatter.png)
+![preco_x_metro](../../_images/houseprices_scatter.png "preco_x_metro")
 *Gráfico 1: Preço de Imóvel Vs. Metragem. Dados por julia4ta no GitHub.*
 
 Essas informações nos dizem o preço de todas as casas já vendidas na região, e, para fins de simplificação, vamos supor que somente a metragem influência no preço de uma casa. Vamos então ignorar qualquer outro fator que pudesse afetar no valor de venda da propriedade coisas como: quantidade de banheiros, quartos, vizinhança, etc. Por enquanto, vamos focar somente na metragem e preço.
@@ -19,7 +19,7 @@ Em um mundo ideal, temos uma conhecimento perfeito de como cada cada metragem in
 
 Uma análise rudimentar dos dados parece nos mostrar que conforme a metragem de uma casa aumenta (eixo X), seu preço também aumenta (eixo Y). Podemos ilustrar isso com uma linha imaginário sobre os dados, como na Figura 1. Claro, isso é somente uma suposição com base no que temos de informação, não sabemos se é verdade ou não, e só podemos afirmar isso porque ao modelar esses dados ignoramos todos os outros fatores que influenciam no preço de uma casa como dito anteriormente.
 
-![[houseprices_scatter_line.png]]
+![preco_x_metro_tendencia](../../_images/houseprices_scatter_line.png "preco_x_metro_tendencia")
 *Figura 1: Tendência da relação entre preço e imóvel.*
 
 Vamos chamar essa linha de *curva de regressão*, mais a frente explico porque do nome. Podemos dizer, então, para João e Maria que a estimativa do preço ideal para que eles vendam a casa está em algum lugar na curva de regressão. Matematicamente, podemos usar a fórmula da reta num plano cartesiano para mostrar a nossa curva:
@@ -54,7 +54,7 @@ Um ponto importante no que tange a divisão de variáveis entre treino e teste, 
 
 O processo de como o algoritmo constrói uma reta que melhor se encaixa nos dados é o que separa entre ela poder ser classificada como um método de aprendizado de máquina ou não. MQO é, de forma geral, considerado um método estatístico não vinculado ao aprendizado de máquina, enquanto Método de Gradiente é (para mais detalhes nessa discussão entre estatistica e ML ler a seção referente ~~ainda em construção~~). 
 
-> [!NOTE] ML vs Estatística
+> [!example] ML vs Estatística
 Seja pelo método de MQO ou Método do Gradiente (em inglês, *gradient descent*) o objetivo final da regressão linear é o mesmo independente do método escolhido e por isso a escolha do método depende muito mais 
 
 Regressão linear é, então, um algoritmo de aprendizado de máquina de aprendizado supervisionado que tenta melhor encaixar os dados a uma reta. Essa reta terá então o seguinte formato:
@@ -85,6 +85,8 @@ Voltemos a nossa equação geral para uma curva de regressão linear, para esse 
 
 $$y = \beta_0 + \beta_1x + u$$
 
+Onde $y$ é a nossa curva de regressão, os $\beta$s são os nossos parâmetros e $u$ o erro.
+
 ## Método de Gradiente
 
 Começamos montando uma regressão linear por método de gradiente assumindo algum valor qualquer para os nossos parâmetros $\theta_0$ e $\theta_1$, e usando os dados que são passados ao modelo mudar esses valores até que eles melhorem se encaixem nas observações, mas como podemos avaliar esse "encaixe" nos dados? Para isso vamos definir algo que chamaremos de Função de Custo (as vezes chamada de "Função de Perda") que medirá o quão perto $h_{\theta}(x^{(i)})$ está do valor verdadeiro $y^{(i)}$. Definiremos a Função de Custo $J(\theta)$ como:
@@ -103,38 +105,48 @@ $$\theta_j := \theta_j - \alpha \frac{\partial}{\partial \theta_j}J(\theta)$$
 
 Expandindo a derivada parcial temos que,
 
-$$\theta_j := \theta_j - \alpha \sum_{i=1}^m(y^{(i)}-h_{\theta}(x^{(i)})x_j^{(i)} \space \text{, para cada j}$$
-
-Onde $\alpha$, a chamado "taxa de aprendizagem", é um hiperparâmetro que define o quão rápido ou devagar o nosso algoritmo vai convergir para uma resposta, mais a frente será um pouco mais comentado como ele é escolhido. No lado esquerdo da equação temos a derivada parcial com respeito a $\theta_j$ da função de custo, caso tenham interesse, a expansão dela está logo abaixo.
+$$\theta_j := \theta_j - \alpha \left( \sum_{i=1}^m(h_{\theta}(x^{(i)})-y^{(i)})x_j^{(i)} \right) \space \text{, para cada j}$$
 
 > [!NOTE] Notação
 > Eu uso o símbolo $:=$ em vez de somente um símbolo igual porque estamos atribuindo um valor a $\theta_j$ e não afirmando que ele é igual a algo. É o mesmo conceito de atribuição em ciência da computação como por exemplo $a := a + 1$ .
 
-$$
-\begin{align}
-\frac{\partial}{\partial \theta_j} J(\theta) &= \frac{\partial}{\partial \theta_j}\frac{1}{2}\sum_{i=1}^{m}(h_{\theta}(x^{(i)})-y^{(i)})^2 \newline
-&= 2 \cdot \frac{1}{2} (x)-y)^2 \cdot \frac{\partial}{\partial \theta_j} (h_{\theta}(x)-y)^2 \newline
-&= (h_{\theta}(x)-y)^2 \cdot \frac{\partial}{\partial \theta_j} \left(\sum_{i=0}^n\theta_ix_i-y \right) \newline
-&= (h_{\theta}(x)-y)x_j
-\end{align}
-$$
+Onde $\alpha$, a chamado "taxa de aprendizagem", é um hiperparâmetro que define o quão rápido ou devagar o nosso algoritmo vai convergir para uma resposta, na prática colocamos ele como sendo igual a 0,01 e vemos se encontramos uma curva que melhor se encaixa nos dados, se não continuamos tentando; uma dica é usar intervalos de 0,01 então testar 0,02, 0,03, etc. No lado esquerdo da equação temos a derivada parcial com respeito a $\theta_j$ da função de custo, caso tenham interesse, a expansão dela está logo abaixo.
 
+Atribuição de $\theta_j$ definida acima nos dá então um algoritmo que podemos seguir. Para cada $\theta$, ou parâmetro, do nosso modelo repetimos aquela atribuição de valor até a série convergir para algum valor. Importante ressaltar que o ajuste é feito para todos os parâmetros ao mesmo tempo para depois se checar a convergência. Por exemplo, com dois parâmetros $\theta_0$ e $\theta_1$ se realiza a atualização de valor de ambos e se verifica se o conjunto dos dois convergiram para algum valor de tal forma que a cada nova iteração não há mudanças relevantes no valor do parâmetro.
 
+Esse último ponto é importante "cada nova iteração não há mudanças relevantes no valor do parâmetro", sabemos que conforme a série convergir aos valores ótimos de $\theta_j$ as mudanças a cada iteração serão cada vez menores justamente pela formulação do fator de erro, $(h_{\theta}(x^{(i)})-y^{(i)})$, conforme nosso algoritmo fornece um valor próximo do real, esse valor diminuí assim como o nosso "fator de ajuste" (tudo aquilo que é multiplicado pelo $\alpha$). De forma oposto, erros maiores fazem com que os ajustes a cada iteração sejam maiores.
 
-> [!example]- Sobre a derivada parcial
+> [!abstract]- Sobre a derivada parcial
 > $$
 > \begin{align}
-> \frac{\partial}{\partial \theta_j} J(\theta) &= \frac{\partial}{\partial \theta_j}\frac{1}{2}((h_{\theta}(x)-y)^2 \newline
-> &= 2 \cdot \frac{1}{2} (x)-y)^2 \cdot \frac{\partial}{\partial \theta_j} (h_{\theta}(x)-y)^2 \newline
-> &= (h_{\theta}(x)-y)^2 \cdot \frac{\partial}{\partial \theta_j} \left(\sum_{i=0}^n\theta_ix_i-y \right) \newline
-> &= (h_{\theta}(x)-y)x_j
+> \frac{\partial}{\partial \theta_j} J(\theta)
+> &= \frac{\partial}{\partial \theta_j}\frac{1}{2}\sum_{i=1}^{m}(h_{\theta}(x^{(i)})-y^{(i)})^2 \newline
+> &= 2 \cdot \frac{1}{2} \sum_{i=1}^{m}(h_{\theta}(x^{(i)})-y^{(i)}) \cdot \frac{\partial}{\partial \theta_j} \sum_{i=1}^{m}(h_{\theta}(x^{(i)})-y^{(i)}) \newline
+> &= \sum_{i=1}^{m}(h_{\theta}(x^{(i)})-y^{(i)}) \cdot \frac{\partial}{\partial \theta_j}  \sum_{i=1}^{m} \left(\sum_{k=0}^n \theta_k x_k^{(i)}-y^{(i)} \right) \newline
+> &= \sum_{i=1}^{m}(h_{\theta}(x^{(i)})-y^{(i)}) \cdot \sum_{i=1}^{m} \left(\frac{\partial}{\partial \theta_j} \sum_{k=0}^n \theta_k x_k^{(i)}-y^{(i)} \right) \newline
+> &= \sum_{i=1}^{m}(h_{\theta}(x^{(i)})-y^{(i)})\sum_{i=1}^{m}x_j^{(i)} \newline
+> &= \sum_{i=1}^{m}(h_{\theta}(x^{(i)})-y^{(i)})x_j^{(i)}
 > \end{align}
 > $$
-> Há três pontos que podem pedir uma explicação a mais. O primeiro está na segunda linha onde foi usada a regra da cadeia e por isso a a diferença do valor estimado e do real aparece duas vezes. O segundo ponto é na terceira linha, onde substituímos a função $h_{\theta}(x)$ pela sua definição, a somatória dos termos e parâmetros. O último é derivada parcial da soma, para simplificar o exemplo contamos que há somente uma *feature*, $x$, por isso o resultado acaba sendo somente $x_j$.
+> Embora a formulação acima pareça razoavelmente complicada, ela é relativamente simples para aqueles com alguma familiaridade com derivadas parciais, apenas dois pontos merecem atenção. O primeiro é na linha quatro, onde colocamos a soma sobre todas as observações (aquela com limite superior $m$) "fora" da derivada. Isso se dá por causa de uma regra que diz que a derivada de somas é a soma de derivadas. Além disso, na última linha simplificamos o produto das somas para ser a soma dos produtos.
+> Outros dois detalhes que merecem atenção é na linha três onde substituo $h_{\theta}$ por sua definição usando uma soma como vimos anteriormente; e na linha cinco onde a derivada parcial de $J(\theta)$ é simplificada a $x_j$, isso é facilmente verificável pois o único termo que depende do $\theta$ em questão é $x_j$.
 
+Esse algoritmo descrito acima é o nosso próprio [método de gradiente](../../matematica/otimizadores/metodo_gradiente.md)! Essa versão em específica é método do gradiente em lote, ou descida do gradiente em lote (do inglês, *batch gradient descent*). Existem outros algoritmos que funcionam na mesmo lógica de descida pelo gradiente como o descida de gradiente estocástico (do inglês, *stochastic gradient descent*) enquanto o aplicado acima precisa percorrer todo o conjunto de dados de teste para dar "um passo", ou seja, ajustar os parâmetros, o método estocástico faz a correção do valor a cada novo valor do conjunto de treino. Por percorrer todo o conjunto de dados de treino, a forma em lote costuma demandar mais poder computacional, mas, na forma apresentada aqui, costuma encontrar o máximo global sem cair em um local e ficar preso ali; por outro lado o estocástico demanda muito menos poder computacional para achar um bom valor de $\theta$, mas nunca costuma encontrar o ponto ótimo e fica oscilando em volta do máximo global.
+De forma geral, o método estocástico acaba sendo preferido por convergir mais rapidamente e fornecer resultados bons o suficientes para a maiorias dos casos.
 
+> [!NOTE] Notação
+> Na do método de gradiente subtraímos do nosso valor de $\theta$ o $\alpha$ em vez adicionar porque nesse caso estaríamos indo para o lado oposto de um mínimo global, um máximo global. 
 
+POSSO ELABORAR SOBRE NÃO TER MAXIMO LOCAL COM O QUE O ANDREW DIZ EM 34 MINUTOS DA AULA
+### Python
 
+Podemos implementar o algoritmo da seguinte forma
+
+### Julia
+
+Podemos implementar o algoritmo da seguinte forma
+
+## Equações normais
 
 
 
@@ -150,3 +162,5 @@ https://github.com/julia4ta/tutorials/tree/master
 https://github.com/maxim5/cs229-2018-autumn
 
 https://www.youtube.com/watch?v=4b4MUYve_U8
+
+wooldrige econometria
