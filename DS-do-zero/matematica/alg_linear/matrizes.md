@@ -1,8 +1,10 @@
-# Operações com matrizes
+# Matrizes
+
+## Operações com matrizes
 
 Ainda em expansão, mas vou deixar aqui algumas definições que sobre derivadas de matrizes e outras propriedades.
 
-## Notação $\nabla$ (nabla) para derivadas
+### Notação $\nabla$ (nabla) para derivadas
 
 Uma notação que é particularmente útil quando estamos lidando com derivadas de matrizes é a *nabla* $\nabla$. Ao longo das notas ela deve aparecer as vezes então deixo aqui uma explicação completa de como interpretar essa notação.
 
@@ -37,16 +39,33 @@ $$
     \end{array} } \right]
 $$
 
-## Traço
+Uma propriedade dessa notação é a seguinte:
 
-O operador "traço" (do inglês, *trace*), $tr$, pode ser interpretado como uma função que mapeia $tr:\mathbb{R}^{n \times n} \to \mathbb{R}$ e é definido da seguinte forma:
+$$\nabla_A\det(A)=\det(A)(A^{-1})^T$$
+Sendo $\det$ o determinante da matriz $A$.
+
+### Traço
+
+O operador "traço" (do inglês, *trace*), $tr$, pode ser interpretado como uma função que mapeia $\text{tr}:\mathbb{R}^{n \times n} \to \mathbb{R}$ e é definido da seguinte forma:
 
 $$
-trA_{n \times n} = \sum^n_{i=1}A_{ii}
+\text{tr}(A_{n \times n}) = \sum^n_{i=1}A_{ii}
 $$
 
-Embora o 
+Isso é, o $trA$ (lê-se o traço de $A$, sendo $A$ uma matriz quadrada) é a soma dos itens em sua diagonal principal.
 
+Segue aqui algumas propriedades desse operador. (A PROVA EU TENHO QUE PENSAR DEPOIS)
 
+$$\text{tr}(A) = \text{tr}(A^T)$$
+*Isso é, uma matriz e sua transposta tem o mesmo traço.*
 
+$$\text{tr}(A+B)=\text{tr}(A)+\text{tr}(B)$$
 
+$$\text{tr}(kA)=k\text{tr}(A)$$
+*Sendo $k$ um escalar qualquer.*
+
+$$\nabla_A \text{tr}(AB) = B^T$$
+
+$$\nabla_{A^T}f(A)=(\nabla_Af(A))^T$$
+
+$$\nabla_A \text{tr}(ABA^TC)=CAB+C^TAB^T$$

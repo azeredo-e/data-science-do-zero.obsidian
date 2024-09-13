@@ -148,6 +148,130 @@ Podemos implementar o algoritmo da seguinte forma
 
 ## Equações normais
 
+As formas que vimos até agora de determinar os parâmetros de uma curva linear de regressão para um dado conjunto de treinamento são eficazes, mas cada uma vem com um custo. Embora o mínimo quadrados ordinários me dê a curva ideal, ele ainda envolve muitas somas sobre percorrermos todo o conjunto de dados somando a diferença dos quadrados, algo que pode escalar computacionalmente dependendo do tamanho do conjunto de treino. O mesmo vale para o método de gradiente, sendo que esse as vezes não nos dá o valor ótimo e sim um que é bom o suficiente. Contudo, podemos pensar em um método que usando o conjunto de treino pode nos dar o valor ótimo dos parâmetros diminuindo a carga computacional, chamaremos esse método de **equações normais**.
+
+Dado um conjunto de treino com $m$ observações e $n$ parâmetros podemos construir uma matriz $X_{m \times n}$ (tecnicamente ela é $m \times n + 1$ se contarmos o intercepto, $\theta_0$, mas para fins de demonstração vou supor que ele é zero pois isso não altera a demonstração).
+
+$$
+X =
+\left[
+\begin{array}{c}
+    \textemdash \space (x^{(1)})^T \space \textemdash \\
+    \textemdash \space (x^{(2)})^T \space \textemdash \\
+    \vdots \\
+    \textemdash \space (x^{(m)})^T \space \textemdash \\
+\end{array}
+\right]
+$$
+
+De forma similar podemos definir um vetor coluna com tamanho $n$ (o número de parâmetros) que contém todos os nossos $\theta$.
+
+$$
+\theta =
+\left[
+\begin{array}{c}
+    \theta_1 \\
+    \theta_2 \\
+    \vdots \\
+    \theta_n \\
+\end{array}
+\right]
+$$
+
+Logo, podemos multiplicar um pelo outro, só que $(x^{(i)})^T\theta$ é a própria previsão do nosso modelo, $h_{\theta}(x^(i))$, então temos que:
+
+$$
+X\theta =
+\left[
+\begin{array}{c}
+    \textemdash \space (x^{(1)})^T \space \textemdash \\
+    \textemdash \space (x^{(2)})^T \space \textemdash \\
+    \vdots \\
+    \textemdash \space (x^{(m)})^T \space \textemdash \\
+\end{array}
+\right]
+\cdot
+\left[
+\begin{array}{c}
+    \theta_1 \\
+    \theta_2 \\
+    \vdots \\
+    \theta_n \\
+\end{array}
+\right]
+=
+\left[
+\begin{array}{c}
+    (x^{(1)})^T\theta \\
+    (x^{(2)})^T\theta \\
+    \vdots \\
+    (x^{(m)})^T\theta \\
+\end{array}
+\right] \newline \newline
+=
+\left[
+\begin{array}{c}
+    h_{\theta}(x^{(1)}) \\
+    h_{\theta}(x^{(2)}) \\
+    \vdots \\
+    h_{\theta}(x^{(n)}) \\
+\end{array}
+\right]
+$$
+
+Seguindo essa mesma linha de representar nossos elementos da equação como vetores, definimos $\vec{y}_m$ como sendo o vetor coluna de tamanho $m$ com os *target*s, isso é o valor real, para o nosso dataset de treino.
+
+$$
+\vec{y} = 
+\left[
+    \begin{array}{c}
+        y^{(1)} \\
+        y^{(2)} \\
+        \vdots \\
+        y^{(m)} \\
+    \end{array}
+\right]
+$$
+
+E se subtrairmos $X\theta$ de $\vec{y}$ temos:
+
+$$
+\begin{align}
+X\theta - \vec{y} &=
+\left[
+\begin{array}{c}
+    (x^{(1)})^T\theta \\
+    (x^{(2)})^T\theta \\
+    \vdots \\
+    (x^{(m)})^T\theta \\
+\end{array}
+\right]
+-
+\left[
+    \begin{array}{c}
+        y^{(1)} \\
+        y^{(2)} \\
+        \vdots \\
+        y^{(m)} \\
+    \end{array}
+\right] \newline\newline
+&=
+\left[
+\begin{array}{c}
+    (x^{(1)})^T\theta - y^{1} \\
+    (x^{(2)})^T\theta - y^{2} \\
+    \vdots \\
+    (x^{(m)})^T\theta - y^{m} \\
+\end{array}
+\right]
+\end{align}
+$$
+
+O que é muito similar da nossa equação da função de custo $J(\theta) = \frac{1}{2}\sum_{i=1}^{m}(h_{\theta}(x^{(i)})-y^{(i)})^2$
+
+Logo, usando a propriedade de que para um vetor $\vec{v}$ qualquer de tamanho $n$, temos que $\vec{v}^T\vec{v} = \sum^n_{i=1} \vec{v}_i^2$ (propriedade esta, também chamada de norma euclidiana). Podemos expressar a função de custo $J(\theta)$ em forma de matrizes.
+
+$$\frac{1}{2}(X\theta - \vec{v})^T(X\theta-\vec{y}) = \frac{1}{2}\sum_{i=1}^{m}(h_{\theta}(x^{(i)})-y^{(i)})^2$$
 
 
 
