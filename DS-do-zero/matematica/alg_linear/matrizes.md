@@ -42,7 +42,7 @@ $$
 Uma propriedade dessa notação é a seguinte:
 
 $$\nabla_A\det(A)=\det(A)(A^{-1})^T$$
-Sendo $\det$ o determinante da matriz $A$.
+*Sendo $\det$ o determinante da matriz $A$.*
 
 ### Traço
 
@@ -69,3 +69,5 @@ $$\nabla_A \text{tr}(AB) = B^T$$
 $$\nabla_{A^T}f(A)=(\nabla_Af(A))^T$$
 
 $$\nabla_A \text{tr}(ABA^TC)=CAB+C^TAB^T$$
+
+$$\nabla_A \text{tr}(ABA^TC)=B^TA^TC^T+BA^TC$$

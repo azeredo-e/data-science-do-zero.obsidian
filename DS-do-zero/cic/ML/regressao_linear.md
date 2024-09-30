@@ -85,7 +85,98 @@ Voltemos a nossa equação geral para uma curva de regressão linear, para esse 
 
 $$y = \beta_0 + \beta_1x + u$$
 
-Onde $y$ é a nossa curva de regressão, os $\beta$s são os nossos parâmetros e $u$ o erro.
+Onde $y$ é a nossa curva de regressão, os $\beta$s são os nossos parâmetros e $u$ o erro. Chamos esse modelo de bivariada pois relaciona duas variáveis, $y$ e $x$.
+
+Fazemos algumas suposições sobre a natureza estatística desse modelo para que ele possa ser verdade, a primeira é que a esperança do erro é 0, ou seja, o seu valor médio é zero. Isso porque consideramos que, dado que o intercepto $\beta_0$ esteja incluído na equação, a perturbação causada pelo erro já pe corrigida por este.
+
+$$\text{E}(u)=0$$
+
+Além disso há outro ponto importante a se considerar: como $u$ e $x$ estão relacionadas. Podemos pensar em termos de correlação, contudo uma propriedade interessante desta é que as vezes não é correlação com $x$, mas sim com uma função de $x$ (digamos $x^2$), o que pode causar problemas na hora de realizarmos uma regressão. Para isso temos que pensar então em **qual é o valor esperado de $u$, dado $x$**.
+
+$$\text{E}(u|x)=E(u)=0$$
+
+Em outras palavras queremos pensar que, dado uma distribuição qualquer de $x$, o valor médio de $u$ é o mesmo, zero. Por exemplo, que não importa se uma pessoa estudou 2, 4, ou 10 anos, supomos que a aptidão natural média para um emprego qualquer é zero na hora de tentarmos criar um modelo sobre como educação influencia renda.
+
+Por fim, assumimos também a seguinte condição:
+
+$$\text{Cov}(u, x)=E(ux)=0$$
+
+Ou seja, assumimos que não há correlação entre as variáveis explicativas e o erro, ou seja, o "andar" da variável $x$, nada nos diz sobre o "andar" da variável $u$.
+
+Aqui nos apresenta o problema, $x$ é a nossa variável independente, $y$, o que queremos estimar, $u$ o erro. Já $\beta_0$ e $\beta_1$, como podemos obter bons valores estimados para eles, respectivamente $\hat{\beta}_0$ e $\hat{\beta}_1$?
+
+Para isso que utilizamos o método dos Mínimos Quadrados Ordinários, ele nos permite criar uma boa estimativa para esses valores que se encaixa nos nosso conjunto de dados. Para isso, a primeira etapa é modifiicar a nossa equação principal e pensar em termos do valor esperado.
+
+$$
+\begin{align}
+y &= \beta_0 + \beta_1x + u \newline
+y - \beta_0 - \beta_1x &= u \newline
+\text{E}(y - \beta_0 - \beta_1x) &= \text{E}(u) \newline
+\text{E}(y - \beta_0 - \beta_1x) &= 0
+\end{align}
+$$
+
+Ou ainda, dado que $\text{E}(xu)=0$,
+
+$$\text{E}(x(y-\beta_0-\beta_1x)) = 0$$
+
+Dada então uma amostra de dados podemos escolher o melhor $\hat{\beta}_0$ e $\hat{\beta}_1$ para se encaixar nesses dados e resolver a equação acima. A esperança é somente a média das observações então podemos reescrever a equação acima como:
+
+$$
+n^{-1}\sum_{i=1}^n x_i(y_i-\hat{\beta}_0-\hat{\beta}_1x_i)=0
+$$
+
+Podemos tentar resolver essa equação para $\hat{\beta}_0$ ou $\hat{\beta}_1$, só que temos somente uma equação, temos que achar uma outra com os mesmo termos para fazer a substituição. Para isso vamos aplicar a mesma regra de expandir a esperança a outra equação.
+
+$$
+\begin{align}
+\text{E}(y - \beta_0 - \beta_1x) &= 0 \newline
+n^{-1}\sum_{i=1}^n y_i-\hat{\beta}_0-\hat{\beta}_1x_i &= 0 \newline
+n^{-1}\sum_{i=1}^n y_i - n^{-1}\sum_{i=1}^n \beta_0 - n^{-1}\sum_{i=1}^n \beta_1x_i &= 0 \newline
+\overline{y} - n^{-1} n \beta_0 - \beta_1 \overline{x} &= 0 \newline
+\overline{y} &= \beta_0 + \beta_1 \overline{x}
+\end{align}
+$$
+
+Em que $\overline{y}$ é a média amostral de $y$, e igualmente para $x$. O que nos permite escrever $\beta_0$ em termos dos outros componentes.
+
+$$\hat{\beta}_0 = \overline{y}-\hat{\beta}_1 \overline{x}$$
+
+Assim podemos susbtituir na equação de antes.
+
+$$
+n^{-1}\sum_{i=1}^n x_i(y_i-(\overline{y}-\beta_1 \overline{x})-\hat{\beta}_1x_i)=0
+$$
+
+Um ponto interessante aqui é que $n$, o tamanho da amostra, é sempre maior que zero. Logo para a identidade acima se manter só precisamos que a parte da somatória seja igual a zero, por isso podemos suprimir o $n^{-1}$, não fará diferença nos cálculos e o leitor é convidado a confirmar isso.
+
+Suprimindo o tamanho da amostra e rearranjando a equação temos que:
+
+$$
+\sum_{i=1}^n x_i(y_i-\overline{y}) = \hat{\beta}_1 \sum_{i=1}^n x_i(x_i-\overline{x})
+$$
+
+Graças a algumas propriedades da soma podemos rearranjar a equação como:
+
+$$
+\sum_{i=1}^n(x_i-\overline{x})(y_i-\overline{y})=\beta_1\sum_{i=1}^n(x_i-\overline{x})^2
+$$
+
+Ou seja, desde que $\sum_{i=1}^n(x_i-\overline{x})^2>0$, podemos estimar $\beta_1$ como sendo:
+
+$$
+\hat{\beta}_1 = \frac{\sum_{i=1}^n(x_i-\overline{x})(y_i-\overline{y})}{\sum_{i=1}^n(x_i-\overline{x})^2}
+$$
+
+E tendo uma estimativa para $\beta_1$, podemos usar a fórmula que usamos acima para susbtituir o valor de $\beta_0$ para determiná-lo, $\hat{\beta}_0 = \overline{y}-\hat{\beta}_1 \overline{x}$.
+
+E com isso temos a nossa estimativa tanto para o intercepto quanto para o coeficiente linear da reta!
+
+Um olhar atento sobre a nossa fórmula para a estimativa de $\hat{\beta}_1$ mostra que o numerador da equação é a covariância amostral entre os nossos parâmetros e *target*, enquanto o denominador é a variância de $x$.
+
+### Regressão por MQO com múltiplas variáveis
+
+Até agora pensamos no MQO com somente uma variável, contudo, muitas vezes esse não é o caso. Temos diversas variáveis no modelo.
 
 ## Método de Gradiente
 
@@ -271,9 +362,41 @@ O que é muito similar da nossa equação da função de custo $J(\theta) = \fra
 
 Logo, usando a propriedade de que para um vetor $\vec{v}$ qualquer de tamanho $n$, temos que $\vec{v}^T\vec{v} = \sum^n_{i=1} \vec{v}_i^2$ (propriedade esta, também chamada de norma euclidiana). Podemos expressar a função de custo $J(\theta)$ em forma de matrizes.
 
-$$\frac{1}{2}(X\theta - \vec{v})^T(X\theta-\vec{y}) = \frac{1}{2}\sum_{i=1}^{m}(h_{\theta}(x^{(i)})-y^{(i)})^2$$
+$$\frac{1}{2}(X\theta - \vec{y})^T(X\theta-\vec{y}) = \frac{1}{2}\sum_{i=1}^{m}(h_{\theta}(x^{(i)})-y^{(i)})^2$$
 
+Dessa forma podemos minimizar a função de custo $J(\theta)$ derivando-a e igualando-a a zero. Para isso primeiro devemos achar a derivada em relação a $\theta$ da função.
 
+$$
+\begin{align}
+\nabla_{\theta}J(\theta) &= \nabla_{\theta} \frac{1}{2}(X\theta - \vec{y})^T (X\theta - \vec{y}) \newline
+&= \frac{1}{2}\nabla_{\theta}(X^T\theta^T X\theta - X^T\theta^T \vec{y} - \vec{y}^T X\theta + \vec{y}^T\vec{y}) \newline
+&= \frac{1}{2}\nabla_{\theta} \text{tr}(X^T\theta^T X\theta - X^T\theta^T \vec{y} - \vec{y}^T X\theta + \vec{y}^T\vec{y}) \newline
+&= \frac{1}{2}\nabla_{\theta} (\text{tr}(X^T\theta^T X\theta) - 2 \cdot\text{tr}(\vec{y}^TX\theta) - \text{tr}(\vec{y}^T\vec{y})) \newline
+&= \frac{1}{2} (X^TX\theta + X^TX\theta - 2\vec{y}X^T) \newline
+&= X^TX\theta-X^T\vec{y}
+\end{align}
+$$
+
+Algumas explicações são necessárias para essa derivação. Na terceira etapa usamos o fato de que o traço de um escalar é o próprio escalar; na quarta etapa usei o fato de que $\text{tr}(A^T) = \text{tr}(A)$ então pude agregar aqueles dois termos; na sexta etapa me utilizo das propriedades da derivada de matrizes e do traço especificamente a propriedade 5 (sendo $A^T=\theta$, $B=B^T=X^TX$, e $C=I_{n \times n}$, sendo $I$ a matriz identidade) e a propriedade 1; por fim na mesma quinta etapa desconsidero o termo $\vec{y}^T\vec{y}$ pois para a derivada em relação a $\theta$ ele é constante.
+
+Temos então que a derivada de $J(\theta)$ com respeito a $\theta$ é $\nabla_{\theta}J(\theta) = X^TX\theta-X^T\vec{y}$
+
+Para minimizarmos, achar o mínimo local, definimos ela como sendo igual a zero, logo
+
+$$
+\begin{align}
+0 &= X^TX\theta-X^T\vec{y} \newline
+X^TX\theta & = X^T\vec{y}
+\end{align}
+$$
+
+Reorganizando a equação temos então que:
+
+$$\theta = (X^TX)^{-1}X^T\vec{y}$$
+
+E com isso temos uma equação que nos dá os coeficientes ótimos com base no nosso conjunto de dados de treino!
+
+## Avaliando métricas
 
 ---
 
