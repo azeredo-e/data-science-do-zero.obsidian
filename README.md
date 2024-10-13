@@ -2,4 +2,4 @@
 
 Anotações e guias de estudo de tudo que envolve ciência de dados.
 
-Repositório onde vou guardar todas as minhas notas de estudo sobre ciência de dados, no futuro devo tentar transformar esse repositório num livro para publicar online usando o pacote de livros em Rust, mas ainda não tenho certeza disso.
+Repositório onde vou guardar todas as minhas notas de estudo sobre ciência de dados. Atualmente uso obsidian para escrevê-las então algumas das visualizações de markdown no GitHub não devem funcionar tão bem. No futuro devo ajustar e criar uma versão desse repositório em markdown puro.
