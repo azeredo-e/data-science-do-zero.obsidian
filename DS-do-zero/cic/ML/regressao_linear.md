@@ -1,6 +1,6 @@
 # Regressão Linear
 
-> Notas sobre notação. Por enquanto utilizo a mesma notação que Andrew Ng no curso CS229 de  Stanford a não ser que explicitado o contrário.
+> Notas sobre notação. Por enquanto utilizo a mesma notação que Andrew Ng no curso CS229 de Stanford a não ser que explicitado o contrário.
 
 PRECISO REFORMULAR E DIZER QUE AS EQUAÇÕES NORMAIS SÃO UM CASO ESPECÍFICO DO MQO QUE EU JÁ DEMONSTREI, VER WIKIPEDIA [OLS](https://en.wikipedia.org/wiki/Ordinary_least_squares)
 
@@ -37,6 +37,7 @@ Com essa equação da reta definida chegamos então ao ponto importante, como de
 
 > [!NOTE] Exemplo de destaque
 > Exemplo de quadro de destaque.
+> Importante notar que tratei o valor da nossa variável target, para não lidarmos com números tão grandes dividi o valor por 1000, para fins estatísticos isso não traz nenhuma alteração, mas é importante que isso seja lembrado. O resultado das estimativas sempre estará em milhares.
 
 ## Definição Formal
 
@@ -67,7 +68,7 @@ $$h_{\theta}(x) = \sum_{i=0}^{n}\theta_ix_i = \theta^Tx$$
 
 ## Mínimo Quadrados Ordinários (MQO)
 
-> Ao longo desse capítulo usarei a mesma notação que Wooldrige em seu livro "Introdução a Econometria".
+> Ao longo desta seção usarei a mesma notação que Wooldrige em seu livro "Introdução a Econometria".
 
 A implementação mais comum para a regressão linear é através do método dos Mínimos Quadrados Ordinários, projetos como o [SciKit-Learn](https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LinearRegression.html) em Python ou o [GLM.jl](https://juliastats.org/GLM.jl/stable/api/#GLM.lm) em Julia utilizam o MQO como forma de resolver um problema de regressão linear.
 
@@ -166,9 +167,24 @@ E com isso temos a nossa estimativa tanto para o intercepto quanto para o coefic
 
 Um olhar atento sobre a nossa fórmula para a estimativa de $\hat{\beta}_1$ mostra que o numerador da equação é a covariância amostral entre os nossos parâmetros e o *target* ($y$), enquanto o denominador é a variância de $x$.
 
+> [!NOTE] Estimando com MQO
+> Usando o nosso conjunto de dados de casas e as nossas fórmulas sobre como estimar o valor dos parâmetros $\beta_0$ e $\beta_1$, no nosso caso $b$ e $m$, podemos estimar os nossos parâmetros. Para isso podemos usar a fórmula:
+> $$
+> m = \frac{\sum_{i=1}^n(x_i-2000)(y_i-340)}{\sum_{i=1}^n(x_i-2000)^2} = 0,134533
+> $$
+> E para o intercepto, $b$ usamos:
+> $$
+> b = 340 + 0,134533 * 2000 = 71,2898
+> $$
+> A nossa fórmula final para estimar o preço de uma casa fica então:
+> $$
+> p = 71,2898 + 0.134533 * A
+> $$
+
 Agora, embora tenhamos derivado uma fórmula para os nossos parâmetros como podemos saber que ela é a ideal? Para isso vamos dar um passo para trás e pensar numa métrica para avaliar isso. O Gráfico 1 abaixo mostra um conjunto de pontos e uma possível reta para eles, vamos chamar de resíduo, $\hat{u}_i$ a diferença entre o valor real $y_i$ e o valor estimado $\hat{y}_i$.
 
 ![mqo_residuos](../../_images/mqo_residuos.png "Residuos de uma regressao MQO")
+*Interpretação dos resíduos, imagem de Wooldrige.*
 
 Logo, se pegássemos todos os resíduos de uma regressão e somássemos, sabemos que temos a melhor reta quando esta soma tiver o menor valor possível, matematicamente queremos:
 
@@ -188,16 +204,124 @@ $$
 &= \sum_{i=1}^n 2(y_i-b_0-b_1x_i) \times(-1) \newline
 &= -2\sum_{i=1}^n (y_i-b_0-b_1x_i)
 \end{align}
-$$$$
+$$
+
+$$
 \begin{align}
 \frac{\partial Q{\hat{\beta_0}, \hat{\beta_1}}}{\partial b_0} &= \frac{\partial}{\partial b_1} \sum_{i=1}^n (y_i-b_0-b_1x_i)^2 \newline
 &= \sum_{i=1}^n 2(y_i-b_0-b_1x_i)\times(-1x_i) \newline
 &= -2\sum_{i=1}^n x_i(y_i-b_0-b_1x_i)
 \end{align}
 $$
+
 Que são exatamente as equações que vimos anteriormente ao manipularmos a esperança das nossas equações originais multiplicadas por $-2n$ e, portanto, são solucionadas pelos mesmos $\hat{\beta}_0$ e $\hat{\beta}_1$.
 
-TEM MAIS COISA, MAS EU GENUINAMENTE NAÕ ENTENDI DO QUE RAIOS ELE TÁ FALANDO DO WOOLDRIGE
+### Implementação em Python
+
+Como disse anteriormente, MQO é a forma mais comum de implementar métodos de regressão linear em Python. Dessa forma, iremos apresentar duas formas de implementar o algoritmo, uma "artesanal" e outra usando o pacote SciKit-Learn que fornece uma implementação de regressão linear para Python.
+
+Primeior veremos essa implementação do zero. Podemos construir o algoritmo da seguinte forma
+
+```python
+import numpy as np
+
+X, y = np.genfromtxt("file.csv", delimiter=",", skip_header=True, unpack=True)
+
+y = y/1000
+
+X_bar = np.mean(X)
+y_bar = np.mean(y)
+
+sum_xy = 0.0
+sum_x2 = 0.0
+
+for X_i, y_i in zip(X, y)
+    sum_xy += (X_i - X_bar) * (y_i - y_bar)
+    sum_x2 += (X_i - X_bar)**2
+
+beta1_hat = sum_xy / sum_x2
+beta0_hat = y_bar - beta1_hat * X_bar
+```
+
+Aqueles com alguma familiaridade com Python podem facilmente identificar que esse algoritmo é relativamente pouco eficiente; poderíamos construir uma *list comprehension* e depois somar o resultado da lista, ou criar uma função que passamos para um mapa.... Todas essas alternativas funcionam, mas escolhi aquela que torna mais fácil de ver como o algoritmo em si é implementado e convido a todos a criar melhores alternativas.
+
+A segunda implementação é usando o pacote SciKit-Learn. Podemos usar a classe `LinearRegression` para dar *fit* em um modelo de regressão linear.
+
+```python
+from sklearn.linear_model import LinearRegression
+import numpy as np
+
+X, y = genfromtxt("file.csv", delimiter=",", skip_header=True, unpack=True)
+
+y = y/1000
+
+reg = LinearRegression()
+reg.fit(X.reshape(-1, 1), y)
+```
+
+Nesse snippet `reg` é uma classe doo tipo `LinearRegression` e por isso tem acesso a todos os atributos dela, com isso podemos puxar os atributos `reg.intercept_` e `reg.coef_` para acessar o intercepto e coeficientes da regressão, respectivamente.
+
+### Implementação em Julia
+
+Como disse anteriormente, MQO é a forma mais comum de implementar métodos de regressão linear em Julia. Dessa forma, iremos apresentar duas formas de implementar o algoritmo, uma "artesanal" e outra usando o pacote GLM.jl que fornece uma implementação de regressão linear para Julia.
+
+Primeiro a nossa implementação caseira. Ela é muito mais para fins de entendermos como o algoritmo funciona e pensarmos em como implementar ele. Para isso podemos construir a seguinte função:
+```julia
+using CSV
+using Statistics
+
+data = CSV.File("file.csv")
+X = data.feature
+y = data.target
+
+X_bar = mean(X)
+y_bar = mean(y)
+
+beta1_hat = sum((X .- X_bar) .* (y .- y_bar))/sum((X .- X_bar).^2)
+beta0_hat = y_bar - beta1_hat * X_bar
+```
+
+As variáveis `beta0_hat` e `beta1_hat` são então os nossos parâmetros para o modelo.
+
+A outra implementação é usando o pacote GLM.jl que nos fornece a função `lm` como uma forma de ajustar um modelo de regressão linear a um certo conjunto de dados.
+
+```julia
+using CSV
+using GLM
+using TypedTables
+
+data = CSV.File("file.csv")
+X = data.feature
+y = data.target
+
+t = Table(X=X, y=y)
+
+mqo = lm(@formula(y ~ X), t)
+```
+
+Em algumas poucas linhas já temos o nosso modelo treinado!
+
+Algumas anotações sobre sintaxe e tipos. Criamos a `Table` `t` pois o `lm` só aceita esse tipo como input para os dados. Além disso usamos uma macro, `@formula`, como argumento da função. Esta macro vem do pacote *StatsModels.jl*, não precisamos nor preocupar com ela, só precisamos saber que a sintaxe `y ~ X` está dizendo que "y é uma relação de X", ou, "y é a variável resposta do regressor X".
+
+> [!NOTE] Usando sobre os dados de imóveis
+> Podemos passar os nossos dados sobre os imóveis para a função `lm` para poder obter os nossos preditores, fazemos isso usando o snippet acima, após isso "printamos" para o terminal o resultado do estimador com `println(mqo)` temos
+> 
+> ```julia
+> julia > println(mqo)
+> StatsModels.TableRegressionModel{LinearModel{GLM.LmResp{Vector{Float64}}, GLM.DensePredChol{Float64, LinearAlgebra.CholeskyPivoted{Float64, Matrix{Float64}, Vector{Int64}}}}, Matrix{Float64}}
+>
+> y ~ 1 + X
+> 
+>Coefficients:
+> ──────────────────────────────────────────────────────────────────────────
+>                 Coef.   Std. Error     t   Pr(>|t|)  Lower 95%  Upper 95%
+> ──────────────────────────────────────────────────────────────────────────
+> (Intercept)  71.2898    26.1331      2.73    0.0091  18.655     123.925
+> X            0.134533   0.0121571    11.07   <1e-13  0.110047   0.159018
+> ──────────────────────────────────────────────────────────────────────────
+> ```
+> Junto dos valores dos coeficientes podemos encontrar também uma série de estatísicas como o desvio padrão (`Std. Error`), o p-valor (`Pr(>|t)`), etc. 
+
 ## Método de Gradiente
 
 A ideia por trás do método de gradiente é assumir uma valor inicial para os parâmetros e ir atualizando esse valor até encontrarmos um que melhor se encaixa ao conjunto de dados. Mas como podemos avaliar esse "encaixe" nos dados? Para isso vamos definir algo que chamaremos de Função de Custo (as vezes chamada de "Função de Perda") que medirá o quão perto $h_{\theta}(x^{(i)})$ está do valor verdadeiro $y^{(i)}$. Definiremos a Função de Custo $J(\theta)$ como:
@@ -249,13 +373,57 @@ De forma geral, o método estocástico acaba sendo preferido por convergir mais 
 > Subtraímos do nosso valor de $\theta$ o $\alpha$ em vez adicionar porque nesse caso estaríamos indo para o lado oposto de um mínimo global, um máximo global. 
 
 Como comentei antes os algoritmos de descida de gradiente tem o problema de serem suscetíveis a mínimos locais, contudo, no caso da regressão linear isso não é um problema pois não é mínimos locais para a nossa função de custo $J(\theta)$. Sabemos disso pois a função é estritamente côncava dada o seu próprio formato, $(h_{\theta}(x^{(i)})-y^{(i)})^2$, e por isso cada passo do algoritmo sempre tende para o mínimo global.
+
 ### Python
 
-Podemos implementar o algoritmo da seguinte forma
+Em construção.
 
 ### Julia
 
-Podemos implementar o algoritmo da seguinte forma
+Comentamos dois tipos de descidas de gradiente no código acima. Embora focamos nosso estudo na descida de gradiente por lote também comentamos a estocástica, vamos comentar a aplicação das duas nos snippets abaixo.
+
+Primeiro a descida de gradiente em lote (BGD, *batch gradient descent*). Até onde pude verificar não há um pacote conhecido que implemente ela diretamente então vamos nos ater a implementação "artesanal". Podemos estabelecer uma função `GDBatch` como
+
+```julia
+function GDBatch(
+    X::AbstractArray,
+    y::AbstractArray,
+    alpha::AbstractFloat = 0.001
+)
+    m = length(X)
+
+    theta_0 = 0.0
+    theta_1 = 0.0
+
+    model(x) = theta_0 .+ theta_1 * x
+    y_hat = model(X)
+    dp_theta_0(y1) = (1/m) * sum(y_hat - y1)
+    dp_theta_1(X1, y1) = (1/m) * sum((y_hat - y1) .* X1
+    
+    epoch = 0
+    while epoch <= 200
+        theta_0_ajuste = dp_theta_0(y)
+        theta_1_ajuste = dp_theta_1(X, y)
+
+        theta_0 -= alpha * theta_0_ajuste
+        theta_1 -= alpha * theta_1_ajuste
+        y_hat = model(X)
+
+        epoch += 1
+    end
+    
+    println(theta_0)
+    println(theta_1)
+end
+```
+
+A função acima é uma possível versão da descida de gradiente para duas variáveis, não é uma implementação particularmente eficiente e consegue suportar somente duas variáveis, mas ela serve apenas de demonstração de como o algoritmo seria quando implementado computacionalmente.
+
+Já para a descida estocástica podemos ter a seguinte função:
+
+```julia
+# Ainda em construção
+```
 
 ## Equações normais
 
@@ -263,7 +431,7 @@ Quando analisamos o MQO antes nesse capítulo focamos somente no caso de que há
 
 AINDA TENHO QUE MELHORAR EM COMO ELAS SÃO IGUAIS AO MQO DE ANTES
 
-Dado um conjunto de treino com $m$ observações e $n$ parâmetros podemos construir uma matriz $X_{m \times n}$ (tecnicamente ela é $m \times n + 1$ se contarmos o intercepto, $\theta_0$, mas para fins de demonstração vou supor que ele é zero pois isso não altera a demonstração).
+Dado um conjunto de treino com $m$ observações e $n$ parâmetros podemos construir uma matriz $X_{m \times n}$ (tecnicamente ela é $m \times n + 1$ se contarmos o intercepto, $\theta_0$ que daí nesse caso a coluna adicional seria a primeira e seria somente do valor 1, mas para fins de demonstração vou supor que ele é zero pois isso não altera a demonstração).
 
 $$
 X =
@@ -408,7 +576,7 @@ Para minimizarmos, achar o mínimo local, definimos ela como sendo igual a zero,
 $$
 \begin{align}
 0 &= X^TX\theta-X^T\vec{y} \newline
-X^TX\theta & = X^T\vec{y}
+X^TX\theta &= X^T\vec{y}
 \end{align}
 $$
 
@@ -418,24 +586,64 @@ $$\theta = (X^TX)^{-1}X^T\vec{y}$$
 
 E com isso temos uma equação que nos dá os coeficientes ótimos com base no nosso conjunto de dados de treino!
 
-## Regressão linear de pesos locais
+### Implementação em Python
 
-## Interpretação probabilística
+Bibliotecas como o SciKit-Learn usam já versões das equações normais para resolver seus problemas de regressão linear, dessa forma a versão incluída aqui é uma construída do zero usando somente o numpy.
 
-## Avaliando métricas
+```python
+import numpy as np
+from numpy.linearalg import inv
+
+X, y = np.genfromtxt("file.csv", delimiter=",", skip_header=True, unpack=True)
+
+y = y / 1000
+
+one = np.one((len(X), 1))
+X = np.hstack((one, X.reshape(-1, 1)))
+
+theta = inv((X.T @ X)) @ (X.T @ y)
+```
+
+O código acima assume a existência de somente uma feature e o target, no caso de mais features temos que fazer leves modificações. Podemos organizar todos os dados em um formato de DataFrame, separar os features dos targets e em seguida converter esses objetos para o formato de matriz do NumPy.
+
+### Implementação em Julia
+
+Embora pacotes como glm.jl utilizem uma versão das equações normais para resolver problemas de regressão linear. Vamos aqui implementar o algoritmo do zero.
+
+```julia
+using CSV
+
+# Renomeio a função para facilitar o uso
+T = transpose
+
+data = CSV.File("file.csv")
+
+m = length(data)
+X = [ones(m) data.feature]
+y = data.target
+
+theta = inv(T(X)*X)*T(X)*y
+```
+
+No snippet acima, assumimos a existência de uma só feature, `feature`. Para o caso de termos mais de uma o código tem leves modificações. Podemos passar `data` para um DataFrame e depois remover a coluna target e depois converter esse DF para uma matriz para fazer as operações, há diversas formas de se fazer isso.
+
+Outro detalhe é que usamos a função `ones` para criar um *array* bidimensional de duas colunas, a primeira sendo somente de 1. Fazemos isso para o algoritmo levar em conta o intercepto, caso não a coloquemos o $\theta_0$ não seria calculado.
+
+> [!NOTE] Usando dados de imóveis
+> Podemos usar nosso o snippet acima para rodar o código com o nosso conjunto de dados. Isso nos retorna um vetor na seguinte forma `[71.28977422922198, 0.13453271876836156]`, o primeiro valor é o nosso intercepto, o seguinte o nosso $m$.
 
 ---
 
 ## Referências
 
-Stanford Online. Stanford CS229: Machine Learning - Linear Regression and Gradient Descent | Lecture 2 (Autumn 2018). https://www.youtube.com/watch?v=4b4MUYve_U8.
+**Stanford Online**. Stanford CS229: Machine Learning - Linear Regression and Gradient Descent | Lecture 2 (Autumn 2018). https://www.youtube.com/watch?v=4b4MUYve_U8.
 
-doggo dot jl. \[05x02\] Linear Regression | Regression | Supervised Learning | Machine Learning \[Julia\].  https://www.youtube.com/watch?v=n03pSsA7NtQ.
+**doggo dot jl**. \[05x02\] Linear Regression | Regression | Supervised Learning | Machine Learning \[Julia\].  https://www.youtube.com/watch?v=n03pSsA7NtQ.
 
-julia4ta. tutorials. https://github.com/julia4ta/tutorials/tree/master.
+**julia4ta**. tutorials. https://github.com/julia4ta/tutorials/tree/master.
 
-maxim5. cs229-2018-autumn. https://github.com/maxim5/cs229-2018-autumn.
+**maxim5**. cs229-2018-autumn. https://github.com/maxim5/cs229-2018-autumn.
 
-Jeffrey M. Wooldrige. Introdução à Econometria: Uma abordagem moderna. 4ª edição.
+**Jeffrey M. Wooldrige**. Introdução à Econometria: Uma abordagem moderna. 4ª edição.
 
-Aurélien Géron. Mãos à Obra: Aprendizado de Máquina com Sciki-Learn, Keras & TensorFlow. 2ª edição.
+**Aurélien Géron**. Mãos à Obra: Aprendizado de Máquina com Sciki-Learn, Keras & TensorFlow. 2ª edição.
