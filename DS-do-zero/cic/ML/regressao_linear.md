@@ -2,8 +2,6 @@
 
 > Notas sobre notação. Por enquanto utilizo a mesma notação que Andrew Ng no curso CS229 de Stanford a não ser que explicitado o contrário.
 
-PRECISO REFORMULAR E DIZER QUE AS EQUAÇÕES NORMAIS SÃO UM CASO ESPECÍFICO DO MQO QUE EU JÁ DEMONSTREI, VER WIKIPEDIA [OLS](https://en.wikipedia.org/wiki/Ordinary_least_squares)
-
 Digamos que tenhamos um conjunto de dados com duas informações: o preço de venda de casas em uma certa região, e a metragem do local (para fins desse exemplo digamos que os valores estão em metros quadrados). Podemos expor esse conjunto graficamente através do seguinte gráfico.
 
 ![preco_x_metro](../../_images/houseprices_scatter.png "preco_x_metro")
@@ -32,23 +30,22 @@ $$p = b + m*A$$
 
 Onde $p$ é o preço da casa, $A$ é a metragem dela e $b$ e $m$ são informações para a construção da curva de regressão. $m$ controla a inclinação da curva, valores mais baixos deixam ela menos inclinada e vice-versa; no nosso cenário de casas podemos imaginar $m$ como sendo o quão "sensível" é o preço de uma casa a metragem, caso tenhamos um $m$ muito alto, mesmo um aumento pequeno em metragem se reflete em um grande aumento de preço. Esse tipo de relação, onde um aumento em $A$ reflete, proporcionalmente, em um mesmo aumento em $p$ é chamado de **relação linear**.
 
-Com essa equação da reta definida chegamos então ao ponto importante, como determinar essa equação se tudo que temos é um conjunto de pontos? Nas próximas sessões vamos explorar alguns possíveis métodos de responder essa pergunta. O foco das sessões será na explicação do método, porém, em quadros de destaque, será continuado o exercício proposto acima de prever preço de imóveis usando regressão linear.
+Com essa equação da reta definida chegamos então ao ponto importante, como determinar essa equação se tudo que temos é um conjunto de pontos? Há diversos métodos de como podemos resolver esse problema e nas próximas sessões vamos explorar algumas possíveis formas de responder essa pergunta. O foco das sessões será na explicação do método, porém, em quadros de destaque, será continuado o exercício proposto acima de prever preço de imóveis.
 
 
 > [!NOTE] Exemplo de destaque
-> Exemplo de quadro de destaque.
-> Importante notar que tratei o valor da nossa variável target, para não lidarmos com números tão grandes dividi o valor por 1000, para fins estatísticos isso não traz nenhuma alteração, mas é importante que isso seja lembrado. O resultado das estimativas sempre estará em milhares.
+> Importante notar que tratei o valor dos preços das casas, para não lidarmos com números tão grandes dividi o valor por 1000, para fins estatísticos isso não traz nenhuma alteração, mas é importante que isso seja lembrado. O resultado das estimativas sempre estará em milhares.
 
 ## Definição Formal
 
-Regressão Linear é um método de aprendizado de máquina muito utilizado para resolver uma grande gama de problemas. O objetivo final dele é sempre o mesmo, independente do método: traçar uma linha sobre o nosso conjunto de dados de forma a tentar prever como que outros pontos se comportariam.
+Regressão Linear é um método de aprendizado de máquina muito utilizado para resolver uma grande gama de problemas. O objetivo final dele é sempre o mesmo, independente do método: traçar uma reta sobre o nosso conjunto de dados de forma a tentar prever como que outros pontos se comportariam.
 
 Dado um certo conjunto de dados, podemos então usar uma amostra dele para tentar calibrar uma curva de regressão que melhor explica a relação linear entre os dados. Esse conjunto de dados que é usado para a criação da reta de regressão pode ser chamado "conjunto de treino". A regressão linear é um algoritmo do tipo de **aprendizado supervisionado** (em inglês, *supervised learning*), justamente porque alimentamos uma parte do nosso conjunto de dados para ele conseguir calibrar o modelo e poder gerar a curva de regressão que melhor se encaixa aos valores que temos
 
 > [!example] Diferença de métodos
-Seja pelo método de MQO ou Método do Gradiente (em inglês, *gradient descent*) o objetivo final da regressão linear é o mesmo independente do método escolhido e por isso a escolha do método depende muito mais das limitações computacionais e do nosso conjunto de dados.
+Entre os diferentes para calcular uma regressão há o MQO (Mínimos Quadrados Ordinários),  Método do Gradiente (em inglês, *gradient descent*), etc, e embora eles sejam fundamentalmente diferentes o objetivo final da regressão linear é o mesmo independente do método escolhido e por isso a escolha do método depende muito mais das limitações computacionais e do nosso conjunto de dados.
 
-Regressão linear é, então, um algoritmo de aprendizado de máquina supervisionado que tenta melhor encaixar os dados a uma reta. Essa reta terá então o seguinte formato:
+**Regressão linear é, então, um algoritmo de aprendizado de máquina supervisionado que tenta melhor encaixar um conjunto de dados a uma reta**. Essa reta terá então o seguinte formato:
 
 $$h_{\theta}(x) = \theta_0 + \theta_1x_1$$
 
@@ -72,7 +69,7 @@ $$h_{\theta}(x) = \sum_{i=0}^{n}\theta_ix_i = \theta^Tx$$
 
 A implementação mais comum para a regressão linear é através do método dos Mínimos Quadrados Ordinários, projetos como o [SciKit-Learn](https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LinearRegression.html) em Python ou o [GLM.jl](https://juliastats.org/GLM.jl/stable/api/#GLM.lm) em Julia utilizam o MQO como forma de resolver um problema de regressão linear.
 
-> O método de mínimos quadrados não é limitado a mínimos quadrados ordinários, existem outras derivações da mesma ideia como o mínimos quadrados lineares que é a implementação específica do SciKit Learn, contudo mantive o texto dizendo que se usa MQO pois o próprio site da biblioteca assim afirma.
+> O método de mínimos quadrados não é limitado a mínimos quadrados ordinários, existem outras derivações da mesma ideia como o mínimos quadrados lineares que é a implementação específica do SciKit-Learn, contudo mantive no texto que é usado o MQO já que o próprio site da biblioteca assim afirma, mesmo não sendo exatamente verdade.
 
 Voltemos à nossa equação geral para uma curva de regressão linear, para esse exemplo vamos usar uma regressão linear bivariada:
 
@@ -98,7 +95,7 @@ Ou seja, assumimos que não há correlação entre as variáveis explicativas e 
 
 Com isso podemos formular o nosso problem dado os nossos dados, $x$, e a nossa variável resposta, $y$, e um erro, $u$, Como podemos construir uma reta que melhor se encaixa esses dados e permite estimar resultados futuros com base no que já sabemos. Em outras palavras, como podemos obter estimativas, $\hat{\beta}_0$ e $\hat{\beta}_1$, para os nossos parâmetros $\beta_0$ e $\beta_1$?
 
-Para isso que utilizamos o método dos Mínimos Quadrados Ordinários, ele nos permite criar uma boa estimativa para esses valores de forma a construir uma reta regressora que melhor se encaixa nos dados. Para isso, a primeira etapa é modificar a nossa equação principal e pensar em termos do valor esperado.
+Para isso que utilizamos o método dos Mínimos Quadrados Ordinários, ele nos permite criar uma boa estimativa para esses valores de forma a construir uma reta regressora que melhor se encaixa nos dados. A primeira etapa é modificar a nossa equação principal e pensar em termos do valor esperado.
 
 $$
 \begin{align}
@@ -111,7 +108,12 @@ $$
 
 Ou ainda, dado que $\text{E}(xu)=0$,
 
-$$\text{E}(x(y-\beta_0-\beta_1x)) = 0$$
+$$
+\begin{equation}
+\tag{1}
+\text{E}(x(y-\beta_0-\beta_1x)) = 0
+\end{equation}
+$$
 
 Dada então uma amostra de dados podemos escolher o melhor $\hat{\beta}_0$ e $\hat{\beta}_1$ para se encaixar nesses dados e resolver a equação acima. A esperança é somente a média das observações então podemos reescrever a equação acima como:
 
@@ -133,7 +135,10 @@ $$
 
 Em que $\overline{y}$ é a média amostral de $y$, e igualmente para $x$. O que nos permite escrever $\beta_0$ em termos dos outros componentes.
 
-$$\hat{\beta}_0 = \overline{y}-\hat{\beta}_1 \overline{x}$$
+$$
+\tag{2}
+\hat{\beta}_0 = \overline{y}-\hat{\beta}_1 \overline{x}
+$$
 
 Assim podemos substituir na equação de antes.
 
@@ -158,6 +163,7 @@ $$
 Ou seja, desde que $\sum_{i=1}^n(x_i-\overline{x})^2>0$, podemos estimar $\beta_1$ como sendo:
 
 $$
+\tag{3}
 \hat{\beta}_1 = \frac{\sum_{i=1}^n(x_i-\overline{x})(y_i-\overline{y})}{\sum_{i=1}^n(x_i-\overline{x})^2}
 $$
 
@@ -188,13 +194,18 @@ Agora, embora tenhamos derivado uma fórmula para os nossos parâmetros como pod
 
 Logo, se pegássemos todos os resíduos de uma regressão e somássemos, sabemos que temos a melhor reta quando esta soma tiver o menor valor possível, matematicamente queremos:
 
-$$\sum_{i=1}^n \hat{u}_i^2 = \sum_{i=1}^n (y_i-\hat{\beta}_0-\hat{\beta}_1x_i)^2$$
+$$
+\tag{4}
+\sum_{i=1}^n \hat{u}_i^2 = \sum_{i=1}^n (y_i-\hat{\beta}_0-\hat{\beta}_1x_i)^2
+$$
 
 O motivo de usarmos o quadrado do erro fará mais sentido quando estudarmos o que se chama modelos lineares generalizados. A segunda parte dessa igualdade mostra somente como o nosso erro é construído através dos nosso parâmetros.
 
 Formalizando esse problema de minimização temos que:
 
-$$\min_{b_0,b_1}\sum_{i=1}^n (y_i-b_0-b_1x_i)^2$$
+$$
+\min_{b_0,b_1}\sum_{i=1}^n (y_i-b_0-b_1x_i)^2
+$$
 
 Onde $b_0$ e $b_1$ são os argumentos genéricos dessa função a ser minimizada, que, por simplicidade, iremos chamar de $Q(b_0, b_1)$. Tal função terá seu mínimo quando as derivadas parciais em relação a $b_0$ e $b_1$, quando avaliados como $\hat{\beta}_0$ e $\hat{\beta}_1$, são iguais a zero; $\frac{\partial Q({\hat{\beta_0}, \hat{\beta_1}})}{\partial b_0} = 0$ e $\frac{\partial Q({\hat{\beta_0}, \hat{\beta_1}})}{\partial b_1} = 0$. Resolvendo essas equações pela regra da cadeia temos temos:
 
@@ -259,7 +270,7 @@ reg = LinearRegression()
 reg.fit(X.reshape(-1, 1), y)
 ```
 
-Nesse snippet `reg` é uma classe doo tipo `LinearRegression` e por isso tem acesso a todos os atributos dela, com isso podemos puxar os atributos `reg.intercept_` e `reg.coef_` para acessar o intercepto e coeficientes da regressão, respectivamente.
+Nesse snippet `reg` é uma classe do tipo `LinearRegression` e por isso tem acesso a todos os atributos dela, com isso podemos puxar os atributos `reg.intercept_` e `reg.coef_` para acessar o intercepto e coeficientes da regressão, respectivamente.
 
 ### Implementação em Julia
 
@@ -321,115 +332,11 @@ Algumas anotações sobre sintaxe e tipos. Criamos a `Table` `t` pois o `lm` só
 > ──────────────────────────────────────────────────────────────────────────
 > ```
 > Junto dos valores dos coeficientes podemos encontrar também uma série de estatísicas como o desvio padrão (`Std. Error`), o p-valor (`Pr(>|t)`), etc. 
-
-## Método de Gradiente
-
-A ideia por trás do método de gradiente é assumir uma valor inicial para os parâmetros e ir atualizando esse valor até encontrarmos um que melhor se encaixa ao conjunto de dados. Mas como podemos avaliar esse "encaixe" nos dados? Para isso vamos definir algo que chamaremos de Função de Custo (as vezes chamada de "Função de Perda") que medirá o quão perto $h_{\theta}(x^{(i)})$ está do valor verdadeiro $y^{(i)}$. Definiremos a Função de Custo $J(\theta)$ como:
-
-$$J(\theta) = \frac{1}{2}\sum_{i=1}^{m}(h_{\theta}(x^{(i)})-y^{(i)})^2$$
-
-Embora essa equação pareça assustadora a primeira vista, ela é fácil de compreender caso a quebremos em seus componentes. Uma soma de 1 até $m$, onde $m$ é o número de observações dos dados, do quadrado da diferença entre o valor estimado ($h_{\theta}(x^{(i)})$) e o valor real ($y^{(i)}$). A diferença então nos faz o trabalho de calcular o quão diferente é o nosso valor estimado do real.  
-
-> Aqui vale a ressalva antes de prosseguirmos sobre notação, o sobrescrito $(i$) denota a $i$-ésima observação no conjunto de dados, por exemplo $x^{(2)}$ é a segunda observação.
-
-A questão que pode surgir é onde que os outros elementos dessa conta entram. Por que dividimos o resultado da soma por dois? Por que elevamos ao quadrado? A resposta para a primeira pergunta é, por enquanto, pouco satisfatória, mais a frente, quando tivermos que manipular essa equação, a matemática se torna mais fácil quando dividimos o resultado por dois, tal operação não afeta o resultado final, só torna os cálculos mais fáceis. Já a segunda pergunta é mais interessante. Mais a frente quando estudarmos modelos lineares de forma mais ampla veremos que regressão linear é um caso específico de toda uma família de modelos chamada Modelos Lineares Generalizados (do inglês General Linear Models, GLM) e nesse momento a existência da exponenciação ficará mais clara.
-
-Tendo em mãos uma função que podemos usar para avaliar o resultado das nossas previsões enquanto treinamos o modelo, queremos então escolher um conjunto de $\theta$ de forma a minimizar $J(\theta)$. **O processo de como fazemos essa escolha, é o elemento central dessa seção**. Vamos supor que temos valores iniciais para o conjunto de $\theta$s (normalmente esses valores são todos 0), e para fins de simplificação vamos supor que temos apenas uma variável e o intercepto, logo $\theta_1$ e $\theta_0$, o nosso algoritmo do método de gradiente vai iterar sobre os nossos valores de $\theta$, atualizando seu valor a cada nova iteração. Para cada $\theta_j$ no nosso problema ($\theta_0$ e $\theta_1$) com um valor inicial qualquer, a cada iteração ele é atualizado dada a seguinte fórmula:
-
-$$\theta_j := \theta_j - \alpha \frac{\partial}{\partial \theta_j}J(\theta)$$
-
-Expandindo a derivada parcial temos que,
-
-$$\theta_j := \theta_j - \alpha \left( \sum_{i=1}^m(h_{\theta}(x^{(i)})-y^{(i)})x_j^{(i)} \right) \space \text{, para cada j}$$
-
-> [!NOTE] Notação
-> Eu uso o símbolo $:=$ em vez de somente um símbolo igual porque estamos atribuindo um valor a $\theta_j$ e não afirmando que ele é igual a algo. É o mesmo conceito de atribuição em ciência da computação como por exemplo $a := a + 1$ .
-
-Onde $\alpha$, a chamado "taxa de aprendizagem", é um hiperparâmetro que define o quão rápido ou devagar o nosso algoritmo vai convergir para uma resposta, na prática colocamos ele como sendo igual a 0,01 e vemos se encontramos uma curva que melhor se encaixa nos dados, se não continuamos tentando; uma dica é usar intervalos de 0,01 então testar 0,02, 0,03, etc. No lado esquerdo da equação temos a derivada parcial com respeito a $\theta_j$ da função de custo, caso tenham interesse, a expansão dela está logo abaixo.
-
-Atribuição de $\theta_j$ definida acima nos dá então um algoritmo que podemos seguir. Para cada $\theta$, ou parâmetro, do nosso modelo repetimos aquela atribuição de valor até a série convergir para algum valor. Importante ressaltar que o ajuste é feito para todos os parâmetros ao mesmo tempo para depois se checar a convergência. Por exemplo, com dois parâmetros $\theta_0$ e $\theta_1$ se realiza a atualização de valor de ambos e se verifica se o conjunto dos dois convergiram para algum valor de tal forma que a cada nova iteração não há mudanças relevantes no valor do parâmetro.
-
-Esse último ponto é importante "cada nova iteração não há mudanças relevantes no valor do parâmetro", sabemos que conforme a série convergir aos valores ótimos de $\theta_j$ as mudanças a cada iteração serão cada vez menores justamente pela formulação do fator de erro, $(h_{\theta}(x^{(i)})-y^{(i)})$, conforme nosso algoritmo fornece um valor próximo do real, esse valor diminuí assim como o nosso "fator de ajuste" (tudo aquilo que é multiplicado pelo $\alpha$). De forma oposto, erros maiores fazem com que os ajustes a cada iteração sejam maiores.
-
-> [!abstract]- Sobre a derivada parcial
-> $$
-> \begin{align}
-> \frac{\partial}{\partial \theta_j} J(\theta)
-> &= \frac{\partial}{\partial \theta_j}\frac{1}{2}\sum_{i=1}^{m}(h_{\theta}(x^{(i)})-y^{(i)})^2 \newline
-> &= 2 \cdot \frac{1}{2} \sum_{i=1}^{m}(h_{\theta}(x^{(i)})-y^{(i)}) \cdot \frac{\partial}{\partial \theta_j} \sum_{i=1}^{m}(h_{\theta}(x^{(i)})-y^{(i)}) \newline
-> &= \sum_{i=1}^{m}(h_{\theta}(x^{(i)})-y^{(i)}) \cdot \frac{\partial}{\partial \theta_j}  \sum_{i=1}^{m} \left(\sum_{k=0}^n \theta_k x_k^{(i)}-y^{(i)} \right) \newline
-> &= \sum_{i=1}^{m}(h_{\theta}(x^{(i)})-y^{(i)}) \cdot \sum_{i=1}^{m} \left(\frac{\partial}{\partial \theta_j} \sum_{k=0}^n \theta_k x_k^{(i)}-y^{(i)} \right) \newline
-> &= \sum_{i=1}^{m}(h_{\theta}(x^{(i)})-y^{(i)})\sum_{i=1}^{m}x_j^{(i)} \newline
-> &= \sum_{i=1}^{m}(h_{\theta}(x^{(i)})-y^{(i)})x_j^{(i)}
-> \end{align}
-> $$
-> Embora a formulação acima pareça razoavelmente complicada, ela é relativamente simples para aqueles com alguma familiaridade com derivadas parciais, apenas dois pontos merecem atenção. O primeiro é na linha quatro, onde colocamos a soma sobre todas as observações (aquela com limite superior $m$) "fora" da derivada. Isso se dá por causa de uma regra que diz que a derivada de somas é a soma de derivadas. Além disso, na última linha simplificamos o produto das somas para ser a soma dos produtos.
-> Outros dois detalhes que merecem atenção é na linha três onde substituo $h_{\theta}$ por sua definição usando uma soma como vimos anteriormente; e na linha cinco onde a derivada parcial de $J(\theta)$ é simplificada a $x_j$, isso é facilmente verificável pois o único termo que depende do $\theta$ em questão é $x_j$.
-
-Esse algoritmo descrito acima é o nosso próprio [método de gradiente](../../matematica/otimizadores/metodo_gradiente.md)! Essa versão em específica é o método do gradiente em lote, ou descida do gradiente em lote (do inglês, *batch gradient descent*). Existem outros algoritmos que funcionam na mesmo lógica de descida pelo gradiente como o descida de gradiente estocástico (do inglês, *stochastic gradient descent*) enquanto o aplicado acima precisa percorrer todo o conjunto de dados de teste para dar "um passo", ou seja, ajustar os parâmetros, o método estocástico faz a correção do valor a cada novo valor do conjunto de treino. Por percorrer todo o conjunto de dados de treino, a forma em lote costuma demandar mais poder computacional, mas, na forma apresentada aqui, costuma encontrar o máximo global sem cair em um local e ficar preso ali; por outro lado o estocástico demanda muito menos poder computacional para achar um bom valor de $\theta$, mas nunca costuma encontrar o ponto ótimo e fica oscilando em volta do mínimo global.
-De forma geral, o método estocástico acaba sendo preferido por convergir mais rapidamente e fornecer resultados bons o suficientes para a maiorias dos casos.
-
-> [!NOTE] Por que diminuir?
-> Subtraímos do nosso valor de $\theta$ o $\alpha$ em vez adicionar porque nesse caso estaríamos indo para o lado oposto de um mínimo global, um máximo global. 
-
-Como comentei antes os algoritmos de descida de gradiente tem o problema de serem suscetíveis a mínimos locais, contudo, no caso da regressão linear isso não é um problema pois não é mínimos locais para a nossa função de custo $J(\theta)$. Sabemos disso pois a função é estritamente côncava dada o seu próprio formato, $(h_{\theta}(x^{(i)})-y^{(i)})^2$, e por isso cada passo do algoritmo sempre tende para o mínimo global.
-
-### Python
-
-Em construção.
-
-### Julia
-
-Comentamos dois tipos de descidas de gradiente no código acima. Embora focamos nosso estudo na descida de gradiente por lote também comentamos a estocástica, vamos comentar a aplicação das duas nos snippets abaixo.
-
-Primeiro a descida de gradiente em lote (BGD, *batch gradient descent*). Até onde pude verificar não há um pacote conhecido que implemente ela diretamente então vamos nos ater a implementação "artesanal". Podemos estabelecer uma função `GDBatch` como
-
-```julia
-function GDBatch(
-    X::AbstractArray,
-    y::AbstractArray,
-    alpha::AbstractFloat = 0.001
-)
-    m = length(X)
-
-    theta_0 = 0.0
-    theta_1 = 0.0
-
-    model(x) = theta_0 .+ theta_1 * x
-    y_hat = model(X)
-    dp_theta_0(y1) = (1/m) * sum(y_hat - y1)
-    dp_theta_1(X1, y1) = (1/m) * sum((y_hat - y1) .* X1
-    
-    epoch = 0
-    while epoch <= 200
-        theta_0_ajuste = dp_theta_0(y)
-        theta_1_ajuste = dp_theta_1(X, y)
-
-        theta_0 -= alpha * theta_0_ajuste
-        theta_1 -= alpha * theta_1_ajuste
-        y_hat = model(X)
-
-        epoch += 1
-    end
-    
-    println(theta_0)
-    println(theta_1)
-end
-```
-
-A função acima é uma possível versão da descida de gradiente para duas variáveis, não é uma implementação particularmente eficiente e consegue suportar somente duas variáveis, mas ela serve apenas de demonstração de como o algoritmo seria quando implementado computacionalmente.
-
-Já para a descida estocástica podemos ter a seguinte função:
-
-```julia
-# Ainda em construção
-```
+> Podemos observar também que o uso do método em GML.jl gera os mesmos valores para $\beta_0$ e $\beta_1$.
 
 ## Equações normais
 
 Quando analisamos o MQO antes nesse capítulo focamos somente no caso de que há somente uma variável no modelo. Isso, muitas vezes, não é o caso na realidade. E embora o MQO como foi apresentado consegue trabalhar com diversas variáveis, apresento aqui uma alternativa a ele, as chamadas **equações normais**, que, em essência realizam o mesmo problema de minimizar os erros só que construído de uma outra maneira.
-
-AINDA TENHO QUE MELHORAR EM COMO ELAS SÃO IGUAIS AO MQO DE ANTES
 
 Dado um conjunto de treino com $m$ observações e $n$ parâmetros podemos construir uma matriz $X_{m \times n}$ (tecnicamente ela é $m \times n + 1$ se contarmos o intercepto, $\theta_0$ que daí nesse caso a coluna adicional seria a primeira e seria somente do valor 1, mas para fins de demonstração vou supor que ele é zero pois isso não altera a demonstração).
 
@@ -548,9 +455,22 @@ X\theta - \vec{y} &=
 \end{align}
 $$
 
-O que é muito similar da nossa equação da função de custo $J(\theta) = \frac{1}{2}\sum_{i=1}^{m}(h_{\theta}(x^{(i)})-y^{(i)})^2$
+A construção acima, onde em cada linha no vetor temos o resultado da nossa estimativa menos o valor real, é muito similar a nossa equação *4* que vimos na seção anterior, com a única diferença sendo que aquela usávamos o quadrado dessa diferença. Esse tipo de equação, em essência nos diz o quão longe estamos do nosso valor verdadeiro então por isso vamos dar a ela o nome de *Função de Custo* (as vezes chamada de "Função de Perda"). **Uma função de custo $J$ nos diz o quão longe o nosso modelo está dos valores reais e por causa disso podemos usá-la para ajustar o nosso modelo a obter melhores resultados.**
 
-Logo, usando a propriedade de que para um vetor $\vec{v}$ qualquer de tamanho $n$, temos que $\vec{v}^T\vec{v} = \sum^n_{i=1} \vec{v}_i^2$ (propriedade esta, também chamada de norma euclidiana). Podemos expressar a função de custo $J(\theta)$ em forma de matrizes.
+Definiremos a Função de Custo $J(\theta)$ como:
+
+$$
+\tag{5}
+J(\theta) = \frac{1}{2}\sum_{i=1}^{m}(h_{\theta}(x^{(i)})-y^{(i)})^2
+$$
+
+Embora essa equação pareça assustadora a primeira vista, ela é fácil de compreender caso a quebremos em seus componentes. Uma soma de 1 até $m$, onde $m$ é o número de observações dos dados, do quadrado da diferença entre o valor estimado ($h_{\theta}(x^{(i)})$) e o valor real ($y^{(i)}$).  
+
+> Aqui vale a ressalva antes de prosseguirmos sobre notação, o sobrescrito $(i$) denota a $i$-ésima observação no conjunto de dados, por exemplo $x^{(2)}$ é a segunda observação.
+
+A questão que pode surgir é onde que os outros elementos dessa conta entram. Por que dividimos o resultado da soma por dois? Por que elevamos ao quadrado? A resposta para a primeira pergunta é, por enquanto, pouco satisfatória, mais a frente, quando tivermos que manipular essa equação, a matemática se torna mais fácil quando dividimos o resultado por dois, tal operação não afeta o resultado final, só torna os cálculos mais fáceis. Já a segunda pergunta é mais interessante. Mais a frente quando estudarmos modelos lineares de forma mais ampla veremos que regressão linear é um caso específico de toda uma família de modelos chamada Modelos Lineares Generalizados (do inglês General Linear Models, GLM) e nesse momento a existência da exponenciação ficará mais clara.
+
+O uso dessa função $J(\theta)$ é vital para que possamos criar um bom modelos. Alteremos a matrzi que vimos acima para que ela corresponda a nossa função de custo. Usando a propriedade de que para um vetor $\vec{v}$ qualquer de tamanho $n$, temos que $\vec{v}^T\vec{v} = \sum^n_{i=1} \vec{v}_i^2$ (propriedade esta, também chamada de norma euclidiana). Podemos expressar a função de custo $J(\theta)$ em forma de matrizes.
 
 $$\frac{1}{2}(X\theta - \vec{y})^T(X\theta-\vec{y}) = \frac{1}{2}\sum_{i=1}^{m}(h_{\theta}(x^{(i)})-y^{(i)})^2$$
 
@@ -571,7 +491,7 @@ Algumas explicações são necessárias para essa derivação. Na terceira etapa
 
 Temos então que a derivada de $J(\theta)$ com respeito a $\theta$ é $\nabla_{\theta}J(\theta) = X^TX\theta-X^T\vec{y}$
 
-Para minimizarmos, achar o mínimo local, definimos ela como sendo igual a zero, logo
+Para minimizarmos, achar o mínimo local, definimos ela como sendo igual a zero, logo,
 
 $$
 \begin{align}
@@ -582,17 +502,20 @@ $$
 
 Reorganizando a equação temos então que:
 
-$$\theta = (X^TX)^{-1}X^T\vec{y}$$
+$$
+\tag{6}
+\theta = (X^TX)^{-1}X^T\vec{y}
+$$
 
-E com isso temos uma equação que nos dá os coeficientes ótimos com base no nosso conjunto de dados de treino!
+E com isso temos uma equação que nos dá os coeficientes ótimos com base no nosso conjunto de dados de treino! Ao usarmos a equação *6* podemos com uma única conta achar os valores ótimos para os nosso parâmetros usando apenas de algumas manipulações de matrizes.
 
 ### Implementação em Python
 
-Bibliotecas como o SciKit-Learn usam já versões das equações normais para resolver seus problemas de regressão linear, dessa forma a versão incluída aqui é uma construída do zero usando somente o numpy.
+Bibliotecas como o SciKit-Learn usam já versões das equações normais para resolver seus problemas de regressão linear, dessa forma a versão incluída aqui é uma construída do zero usando somente o [NumPy](https://numpy.org/).
 
 ```python
 import numpy as np
-from numpy.linearalg import inv
+from numpy.linalg import inv
 
 X, y = np.genfromtxt("file.csv", delimiter=",", skip_header=True, unpack=True)
 
@@ -604,11 +527,11 @@ X = np.hstack((one, X.reshape(-1, 1)))
 theta = inv((X.T @ X)) @ (X.T @ y)
 ```
 
-O código acima assume a existência de somente uma feature e o target, no caso de mais features temos que fazer leves modificações. Podemos organizar todos os dados em um formato de DataFrame, separar os features dos targets e em seguida converter esses objetos para o formato de matriz do NumPy.
+O código acima assume a existência de somente uma feature e o target, no caso de mais features temos que fazer leves modificações. Podemos organizar todos os dados em um formato de DataFrame, separar os features dos targets e em seguida converter esses objetos para o formato de matriz do NumPy e podemos, então, seguir com o algoritmo das equações normais.
 
 ### Implementação em Julia
 
-Embora pacotes como glm.jl utilizem uma versão das equações normais para resolver problemas de regressão linear. Vamos aqui implementar o algoritmo do zero.
+Embora pacotes como GLM.jl utilizem uma versão das equações normais para resolver problemas de regressão linear. Vamos aqui implementar o algoritmo do zero.
 
 ```julia
 using CSV
@@ -631,6 +554,122 @@ Outro detalhe é que usamos a função `ones` para criar um *array* bidimensiona
 
 > [!NOTE] Usando dados de imóveis
 > Podemos usar nosso o snippet acima para rodar o código com o nosso conjunto de dados. Isso nos retorna um vetor na seguinte forma `[71.28977422922198, 0.13453271876836156]`, o primeiro valor é o nosso intercepto, o seguinte o nosso $m$.
+> Aplicando esse valor nos nossos dados podemos gerar o seguinte gráfico
+> ![MQO_estimate](../../_images/MQO_estimate.png "Estimativas usando equações normais")
+> Uma curva que, de formal geral, parece se encaixar muito bem nos nossos dados e deve gerar boas previsões! (A análise do que faz um bom *fit* é assunto para outra seção).
+
+## Método de Gradiente
+
+Embora o MQO e equação normal nos deem os valores exatos de quais os melhores parâmetros para uma regressão linear são algoritmos relativamente custosos computacionalmente por terem que fazer operações obre todo o conjunto de dados, o que, conforme o nosso conjunto de dados cresce, ou quando temos muitas variáveis, pode ser custoso demais computacionalmente. Para isso existe uma outra classe de algoritmos que melhor se encaixa a essa situação. 
+
+Método do Gradiente é um algoritmo de [otimizador](../../matematica/otimizadores/metodo_gradiente.md) muito usado no campo de aprendizado de máquina. Embora ele não nos dê os valores exatos, na maior parte das vezes ele é capaz de entregar valores bons o suficientes que justificam seu uso em muitas aplicações.
+
+O primeiro passo para a construção do algoritmo é termos em mão uma função para avaliar o desempenho das nossas previsões, e, como visto na seção anterior, a nossa função de custo para uma regressão linear é a equação *5*, 
+
+$$J(\theta) = \frac{1}{2}\sum_{i=1}^{m}(h_{\theta}(x^{(i)})-y^{(i)})$$
+
+Com ela podemos avaliar o resultado das nossas previsões e a cada iteração do algoritmo de descida de gradiente melhorar a nossa estimativa para os $\theta$s. A forma como esse valor é atualizado segue a equação *7* logo abaixo,
+
+$$
+\tag{7}
+\theta_j := \theta_j - \alpha \frac{\partial}{\partial \theta_j}J(\theta)
+$$
+
+Expandindo a derivada parcial temos que,
+
+$$\theta_j := \theta_j - \alpha \left( \sum_{i=1}^m(h_{\theta}(x^{(i)})-y^{(i)})x_j^{(i)} \right) \space \text{, para cada j}$$
+
+> [!NOTE] Notação
+> Eu uso o símbolo $:=$ em vez de somente um símbolo igual porque estamos atribuindo um valor a $\theta_j$ e não afirmando que ele é igual a algo. É o mesmo conceito de atribuição em ciência da computação como por exemplo $a := a + 1$ .
+
+Onde $\alpha$, a chamado "taxa de aprendizagem", é um hiperparâmetro que define o quão rápido ou devagar o nosso algoritmo vai convergir para uma resposta, na prática colocamos ele como sendo igual a 0,01 e vemos se encontramos uma curva que melhor se encaixa nos dados, se não continuamos tentando; uma dica é usar intervalos de 0,01 então testar 0,02, 0,03, etc. No lado esquerdo da equação temos a derivada parcial com respeito a $\theta_j$ da função de custo, caso tenham interesse, a expansão dela está logo abaixo.
+
+Atribuição de $\theta_j$ definida acima nos dá então um algoritmo que podemos seguir. Para cada $\theta$, ou parâmetro, do nosso modelo repetimos aquela atribuição de valor até a série convergir para algum valor. Importante ressaltar que o ajuste é feito para todos os parâmetros ao mesmo tempo para depois se checar a convergência. Por exemplo, com dois parâmetros $\theta_0$ e $\theta_1$ se realiza a atualização de valor de ambos e se verifica se o conjunto dos dois convergiram para algum valor de tal forma que a cada nova iteração não há mudanças relevantes no valor do parâmetro.
+
+Esse último ponto é importante "cada nova iteração não há mudanças relevantes no valor do parâmetro", sabemos que conforme a série convergir aos valores ótimos de $\theta_j$ as mudanças a cada iteração serão cada vez menores justamente pela formulação do fator de erro, $(h_{\theta}(x^{(i)})-y^{(i)})$, conforme nosso algoritmo fornece um valor próximo do real, esse valor diminuí assim como o nosso "fator de ajuste" (tudo aquilo que é multiplicado pelo $\alpha$). De forma oposto, erros maiores fazem com que os ajustes a cada iteração sejam maiores.
+
+> [!abstract] Sobre a derivada parcial
+> $$
+> \begin{align}
+> \frac{\partial}{\partial \theta_j} J(\theta)
+> &= \frac{\partial}{\partial \theta_j}\frac{1}{2}\sum_{i=1}^{m}(h_{\theta}(x^{(i)})-y^{(i)})^2 \newline
+> &= 2 \cdot \frac{1}{2} \sum_{i=1}^{m}(h_{\theta}(x^{(i)})-y^{(i)}) \cdot \frac{\partial}{\partial \theta_j} \sum_{i=1}^{m}(h_{\theta}(x^{(i)})-y^{(i)}) \newline
+> &= \sum_{i=1}^{m}(h_{\theta}(x^{(i)})-y^{(i)}) \cdot \frac{\partial}{\partial \theta_j}  \sum_{i=1}^{m} \left(\sum_{k=0}^n \theta_k x_k^{(i)}-y^{(i)} \right) \newline
+> &= \sum_{i=1}^{m}(h_{\theta}(x^{(i)})-y^{(i)}) \cdot \sum_{i=1}^{m} \left(\frac{\partial}{\partial \theta_j} \sum_{k=0}^n \theta_k x_k^{(i)}-y^{(i)} \right) \newline
+> &= \sum_{i=1}^{m}(h_{\theta}(x^{(i)})-y^{(i)})\sum_{i=1}^{m}x_j^{(i)} \newline
+> &= \sum_{i=1}^{m}(h_{\theta}(x^{(i)})-y^{(i)})x_j^{(i)}
+> \end{align}
+> $$
+> Embora a formulação acima pareça razoavelmente complicada, ela é relativamente simples para aqueles com alguma familiaridade com derivadas parciais, apenas dois pontos merecem atenção. O primeiro é na linha quatro, onde colocamos a soma sobre todas as observações (aquela com limite superior $m$) "fora" da derivada. Isso se dá por causa de uma regra que diz que a derivada de somas é a soma de derivadas. Além disso, na última linha simplificamos o produto das somas para ser a soma dos produtos.
+> Outros dois detalhes que merecem atenção é na linha três onde substituo $h_{\theta}$ por sua definição usando uma soma como vimos anteriormente; e na linha cinco onde a derivada parcial de $J(\theta)$ é simplificada a $x_j$, isso é facilmente verificável pois o único termo que depende do $\theta$ em questão é $x_j$.
+
+Esse algoritmo descrito acima é o nosso próprio [método de gradiente](../../matematica/otimizadores/metodo_gradiente.md)! Essa versão em específica é o método do gradiente em lote, ou descida do gradiente em lote (do inglês, *batch gradient descent*). Existem outros algoritmos que funcionam na mesmo lógica de descida pelo gradiente como o descida de gradiente estocástico (do inglês, *stochastic gradient descent*) enquanto o aplicado acima precisa percorrer todo o conjunto de dados de teste para dar "um passo", ou seja, ajustar os parâmetros, o método estocástico faz a correção do valor a cada novo valor do conjunto de treino. Por percorrer todo o conjunto de dados de treino, a forma em lote costuma demandar mais poder computacional, mas, na forma apresentada aqui, costuma encontrar o máximo global sem cair em um local e ficar preso ali; por outro lado o estocástico demanda muito menos poder computacional para achar um bom valor de $\theta$, mas nunca costuma encontrar o ponto ótimo e fica oscilando em volta do mínimo global.
+De forma geral, o método estocástico acaba sendo preferido por convergir mais rapidamente e fornecer resultados bons o suficientes para a maioria dos casos.
+
+> [!INFO] Por que diminuir?
+> Subtraímos do nosso valor de $\theta$ o $\alpha$ em vez adicionar porque nesse caso estaríamos indo para o lado oposto de um mínimo global, um máximo global. 
+
+> [!NOTE] Aplicando o algoritmo
+> Quando aplicamos o algoritmo no nosso conjunto de dados começamos com os valores de 0, para todos os parâmetros o que cria uma curva de regressão (azul) como no gráfico abaixo
+> ![BGD_epoch0](../../_images/BGD_epoch0.png "Curva de regressão com os parâmetros iguais a 0")
+> Ao aplicarmos a primeira iteração do algoritmo já vemos uma grande mudança
+> ![BGD_epoch1](../../_images/BGD_epoch1.png "Curva de regressão após a primeira iteração")
+> Se avançarmos algumas iterações podemos ver que os ganhos são cada vez menores conforme a diferença entre os erros fica cada vez menor.
+> ![BGD_epoch7](../../_images/BGD_epoch7.png "Curva de regressão com os parãmetros iguais a 0")
+> E ao compararmos os parâmetros obtidos por esse método e aqueles pelo MQO vemos que a diferença é relativamente baixa. Para o $\theta_0$ aproximadamente 6% ($\theta_0 = 67.2312$) e para o $\theta_1$ menos de 1% ($\theta_1 = 0.1338$).
+
+Como comentei antes os algoritmos de descida de gradiente tem o problema de serem suscetíveis a mínimos locais, contudo, no caso da regressão linear isso não é um problema pois não é mínimos locais para a nossa função de custo $J(\theta)$. Sabemos disso pois a função é estritamente côncava dada o seu próprio formato, $(h_{\theta}(x^{(i)})-y^{(i)})^2$, e por isso cada passo do algoritmo sempre tende para o mínimo global.
+
+### Python
+
+Em construção.
+
+### Julia
+
+Comentamos dois tipos de descidas de gradiente no código acima. Embora focamos nosso estudo na descida de gradiente por lote também comentamos a estocástica, vamos comentar a aplicação das duas nos snippets abaixo.
+
+Primeiro a descida de gradiente em lote (BGD, *batch gradient descent*). Até onde pude verificar não há um pacote conhecido que implemente ela diretamente então vamos nos ater a implementação "artesanal". Podemos estabelecer uma função `GDBatch` como
+
+```julia
+function GDBatch(
+    X::AbstractArray,
+    y::AbstractArray,
+    alpha::AbstractFloat = 0.001
+)
+    m = length(X)
+
+    theta_0 = 0.0
+    theta_1 = 0.0
+
+    model(x) = theta_0 .+ theta_1 * x
+    y_hat = model(X)
+    dp_theta_0(y1) = (1/m) * sum(y_hat - y1)
+    dp_theta_1(X1, y1) = (1/m) * sum((y_hat - y1) .* X1
+    
+    epoch = 0
+    while epoch <= 200
+        theta_0_ajuste = dp_theta_0(y)
+        theta_1_ajuste = dp_theta_1(X, y)
+
+        theta_0 -= alpha * theta_0_ajuste
+        theta_1 -= alpha * theta_1_ajuste
+        y_hat = model(X)
+
+        epoch += 1
+    end
+    
+    println(theta_0)
+    println(theta_1)
+end
+```
+
+A função acima é uma possível versão da descida de gradiente para duas variáveis, não é uma implementação particularmente eficiente e consegue suportar somente duas variáveis, mas ela serve apenas de demonstração de como o algoritmo seria quando implementado computacionalmente.
+
+Já para a descida estocástica podemos ter a seguinte função:
+
+```julia
+# Ainda em construção
+```
 
 ---
 
