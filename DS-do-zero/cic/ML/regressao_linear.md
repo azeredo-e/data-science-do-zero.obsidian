@@ -2,25 +2,25 @@
 
 > Notas sobre notação. Por enquanto utilizo a mesma notação que Andrew Ng no curso CS229 de Stanford a não ser que explicitado o contrário.
 
-Digamos que tenhamos um conjunto de dados com duas informações: o preço de venda de casas em uma certa região, e a metragem do local (para fins desse exemplo digamos que os valores estão em metros quadrados). Podemos expor esse conjunto graficamente através do seguinte gráfico.
+Digamos que tenhamos um conjunto de dados com duas informações: o preço de venda de casas em uma certa região, e a metragem do local (para fins desse exemplo digamos que os valores estão em metros quadrados). Podemos expor essas observações graficamente através do seguinte gráfico.
 
 ![preco_x_metro](../../_images/houseprices_scatter.png "preco_x_metro")
 *Gráfico 1: Preço de Imóvel Vs. Metragem. Dados por julia4ta no GitHub.*
 
-Essas informações nos dizem o preço de todas as casas já vendidas na região, e, para fins de simplificação, vamos supor que somente a metragem influência no preço de uma casa. Vamos então ignorar qualquer outro fator que pudesse afetar no valor de venda da propriedade coisas como: quantidade de banheiros, quartos, vizinhança, etc. Por enquanto, vamos focar somente na metragem e preço.
+Essas informações nos dizem o preço e metragem de todas as casas já vendidas na região. Por enquanto, vamos colocar de lado qualquer outro fator que pudesse afetar no valor de venda da propriedade, coisas como: quantidade de banheiros, quartos, vizinhança, etc. Focaremos somente na metragem e preço.
 
-Agora, vamos supor que João quer vender a sua casa de 350m² e gostaria de saber a sua opinião sobre qual o valor ele deveria cobrar. Ele sabe que se colocar uma valor muito alto a casa não será vendida e se colocar um valor baixo estará perdendo dinheiro. Ou seja, com base no que você sabe sobre o preço de venda de casas na região, que valor diria para João que é o ideal? Ou ainda, se fosse outra pessoa, Maria, que lhe fizesse essa mesma pergunta só que a casa dela tem 100m², que valor diria para ela? De forma genérica podemos então formular a seguinte pergunta: 
+Agora, digamos que João quer vender a sua casa de 350m² e gostaria de saber a sua opinião sobre qual o valor ele deveria cobrar. Ele sabe que se colocar uma valor muito alto a casa não será vendida e se colocar um valor baixo estará perdendo dinheiro. Ou seja, com base no que você sabe sobre o preço de venda de casas na região, que valor diria para João que é o ideal? Ou ainda, se fosse outra pessoa, Maria, que lhe fizesse essa mesma pergunta só que a casa dela tem 100m², que valor diria para ela? De forma genérica podemos então formular a seguinte pergunta: 
 
 > Dada uma casa de metragem $A$ qual será seu valor estimado de venda $p$?
 
-Em um mundo ideal, temos uma conhecimento perfeito de como cada cada metragem influência na venda de uma casa, mas, se vivêssemos nesse mundo perfeito, computadores seriam tão poderosos em fazer previsões que o mundo que conhecemos hoje provavelmente não existiria! O que podemos fazer, então, é dar um "chute", uma previsão, analisar as informações que temos e tentar extrapolar dela uma resposta para a nossa pergunta principal.
+Em um mundo ideal, temos uma conhecimento perfeito de como cada cada metragem (assim como outros fatores) influenciam na venda de uma casa, mas, se vivêssemos nesse mundo perfeito, computadores seriam tão poderosos em fazer previsões que o mundo que conhecemos hoje provavelmente não existiria! O que podemos fazer, então, é dar um "chute", uma previsão, analisar as informações que temos e tentar extrapolar dela uma resposta para a nossa pergunta principal.
 
 Uma análise rudimentar dos dados parece nos mostrar que conforme a metragem de uma casa aumenta (eixo X), seu preço também aumenta (eixo Y). Podemos ilustrar isso com uma linha imaginário sobre os dados, como na Figura 1.
 
 ![preco_x_metro_tendencia](../../_images/houseprices_scatter_line.png "preco_x_metro_tendencia")
 *Figura 1: Tendência da relação entre preço e imóvel.*
 
-Vamos chamar essa linha de *curva de regressão*. Podemos dizer, então, para João e Maria que a estimativa do preço ideal para que eles vendam a casa está em algum lugar na curva de regressão. Matematicamente, podemos usar a fórmula da reta num plano cartesiano para mostrar a nossa curva:
+Vamos chamar essa linha de *curva de regressão*. Podemos dizer, então, para João e Maria, que a estimativa do preço ideal para que eles vendam a casa está em algum lugar na curva de regressão. Matematicamente, podemos usar a fórmula da reta num plano cartesiano para mostrar a nossa curva:
 
 $$y = b + mx$$
 
@@ -34,24 +34,24 @@ Com essa equação da reta definida chegamos então ao ponto importante, como de
 
 
 > [!NOTE] Exemplo de destaque
-> Importante notar que tratei o valor dos preços das casas, para não lidarmos com números tão grandes dividi o valor por 1000, para fins estatísticos isso não traz nenhuma alteração, mas é importante que isso seja lembrado. O resultado das estimativas sempre estará em milhares.
+> Importante notar que tratei o valor dos preços das casas. Para não lidarmos com números tão grandes dividi o valor de venda por 1000, para fins estatísticos isso não traz nenhuma alteração, mas é importante que isso seja lembrado. O resultado das estimativas sempre estará em milhares.
 
 ## Definição Formal
 
-Regressão Linear é um método de aprendizado de máquina muito utilizado para resolver uma grande gama de problemas. O objetivo final dele é sempre o mesmo, independente do método: traçar uma reta sobre o nosso conjunto de dados de forma a tentar prever como que outros pontos se comportariam.
+Regressão linear é um método de aprendizado de máquina muito utilizado para resolver uma grande gama de problemas. O objetivo final dele é sempre o mesmo, independente do método: traçar uma reta sobre o nosso conjunto de dados de forma a tentar prever como que outros pontos se comportariam.
 
-Dado um certo conjunto de dados, podemos então usar uma amostra dele para tentar calibrar uma curva de regressão que melhor explica a relação linear entre os dados. Esse conjunto de dados que é usado para a criação da reta de regressão pode ser chamado "conjunto de treino". A regressão linear é um algoritmo do tipo de **aprendizado supervisionado** (em inglês, *supervised learning*), justamente porque alimentamos uma parte do nosso conjunto de dados para ele conseguir calibrar o modelo e poder gerar a curva de regressão que melhor se encaixa aos valores que temos
+Dado um certo conjunto de dados, podemos então usar uma amostra deste para tentar calibrar uma curva de regressão que melhor explica a relação linear entre os dados. Esse conjunto de dados que é usado para a criação da reta de regressão pode ser chamado "conjunto de treino". A regressão linear é um algoritmo do tipo de **aprendizado supervisionado** (em inglês, *supervised learning*), justamente porque alimentamos uma parte do nosso conjunto de dados para ele conseguir calibrar o modelo e poder gerar a curva de regressão que melhor se encaixa aos valores que temos.
 
 > [!example] Diferença de métodos
-Entre os diferentes para calcular uma regressão há o MQO (Mínimos Quadrados Ordinários),  Método do Gradiente (em inglês, *gradient descent*), etc, e embora eles sejam fundamentalmente diferentes o objetivo final da regressão linear é o mesmo independente do método escolhido e por isso a escolha do método depende muito mais das limitações computacionais e do nosso conjunto de dados.
+Entre os diferentes para calcular uma regressão há o MQO (Mínimos Quadrados Ordinários),  Método do Gradiente (em inglês, *Gradient Descent*), etc, e embora eles sejam fundamentalmente diferentes o objetivo final da regressão linear é o mesmo independente do método escolhido e por isso a escolha do método depende muito mais das limitações computacionais e do nosso conjunto de dados.
 
 **Regressão linear é, então, um algoritmo de aprendizado de máquina supervisionado que tenta melhor encaixar um conjunto de dados a uma reta**. Essa reta terá então o seguinte formato:
 
 $$h_{\theta}(x) = \theta_0 + \theta_1x_1$$
 
-Onde $h$ é a nossa curva de regressão; $\theta_0$ é o intercepto; $\theta_1$ é o coeficiente angular da reta; e $x_1$ o nosso conjunto de dados. $\theta_0$ e $\theta_1$ são muitas vezes chamados de **parâmetros** do nosso modelo. O olhar atento vai notar que essa equação é muito similar a equação da reta que vimos anteriormente nesse capítulo, só temos que mudar os $\theta$ por $m$ e $b$ e é a mesma equação! A manipulação dos valores nos parâmetros nos dá então qualquer reta que pode ser representada num espaço cartesiano. **O nosso objetivo é, então, encontrar o conjunto de $\theta$ que gera a reta que melhor se encaixa no conjunto de dados**.
+Onde $h$ é a nossa curva de regressão; $\theta_0$ é o intercepto; $\theta_1$ é o coeficiente angular da reta; e $x_1$ o nosso conjunto de dados. $\theta_0$ e $\theta_1$ são muitas vezes chamados de **parâmetros** do nosso modelo. O olhar atento vai notar que essa equação é muito similar a equação da reta que vimos anteriormente nesse capítulo, só temos que mudar os $\theta$ por $m$ e $b$ e é a mesma equação! A manipulação dos valores nos parâmetros nos dá então qualquer reta que pode ser representada num espaço cartesiano. **O nosso objetivo é, então, encontrar o conjunto de $\theta$ que gere a reta que melhor se encaixa no conjunto de dados**.
 
-O intercepto é as vezes chamado de "viés", em termos geométricos, ele nos diz onde que a reta corta o eixo y quando o valor de $x_1$ é igual a 0. Em termos de aprendizado de máquina ele nos diz qual a condição inicial do nosso modelo.
+O intercepto, as vezes chamado de "viés", em termos geométricos, nos diz onde que a reta corta o eixo y quando o valor de $x_1$ é igual a 0. Em termos de aprendizado de máquina ele nos diz qual a condição inicial do nosso modelo.
 
 Importante ressaltar que aqui estamos lidando com o caso de que o nosso conjunto de dados tem apenas uma variável, $x_1$, caso ele tenha mais variáveis elas devem ser incluídas na equação geral do modelo da seguinte forma:
 
@@ -61,7 +61,7 @@ Ou,
 
 $$h_{\theta}(x) = \sum_{i=0}^{n}\theta_ix_i = \theta^Tx$$
 
- Onde $n$ é o número de variáveis do modelo. O olhar atento vai ver que ignorei o intercepto na soma, isso porque estou assumindo $\theta$ e $x$ e como sendo um conjunto de vetores com cada um dos valores $i$. Pode-se convencionar então que $x_0 = 1$ então nosso intercepto, $\theta_0$, consegue ser incorporado na formulação geral.
+ Onde $n$ é o número de variáveis do modelo. O olhar atento vai ver que ignorei o intercepto na soma, isso porque estou assumindo $\theta$ e $x$ e como sendo um conjunto de vetores (sendo $\theta^T$ um vetor coluna) com cada um dos valores $i$. Pode-se convencionar então que $x_0 = 1$ ou seja, o intercepto, $\theta_0$, consegue ser incorporado na formulação geral mesmo sem discriminá-lo na equação.
 
 ## Mínimo Quadrados Ordinários (MQO)
 
@@ -77,6 +77,9 @@ $$y = \beta_0 + \beta_1x + u$$
 
 Onde $y$ é a nossa curva de regressão; os $\beta$s são os nossos parâmetros; e $u$ o erro, qualquer coisa que o nosso modelo não consiga estimar, mas que pode afetar o valor da variável dependente, $y$. Chamamos esse modelo de bivariado pois relaciona duas variáveis, $y$ e $x$.
 
+> [!NOTE] Sobre o erro
+> Quando nos deparamos com a estimativa de preços de casas sabemos que não é somente a sua metragem que influência no preço. Elementos como: bairros, número de quartos, banheiros, valor geral de casas na região, etc afetam também o preço de uma casa. Todos esses componentes são capturados por $u$.
+
 Fazemos algumas suposições sobre a natureza estatística desse modelo para que ele possa ser verdade, a primeira é que a esperança do erro é 0, ou seja, o seu valor médio é zero. Isso porque consideramos que, dado que o intercepto $\beta_0$ esteja incluído na equação, a perturbação causada pelo erro já é corrigida por este.
 
 $$\text{E}(u)=0$$
@@ -91,9 +94,9 @@ Por fim, assumimos também a seguinte condição:
 
 $$\text{Cov}(u, x)=E(ux)=0$$
 
-Ou seja, assumimos que não há correlação entre as variáveis explicativas e o erro, ou seja, o "andar" da variável $x$, nada nos diz sobre o "andar" da variável $u$.
+Ou seja, assumimos que não há uma relação de dependência entre as variáveis explicativas e o erro, ou seja, o "andar" da variável $x$, nada nos diz sobre o "andar" da variável $u$.
 
-Com isso podemos formular o nosso problem dado os nossos dados, $x$, e a nossa variável resposta, $y$, e um erro, $u$, Como podemos construir uma reta que melhor se encaixa esses dados e permite estimar resultados futuros com base no que já sabemos. Em outras palavras, como podemos obter estimativas, $\hat{\beta}_0$ e $\hat{\beta}_1$, para os nossos parâmetros $\beta_0$ e $\beta_1$?
+Com isso podemos formular o nosso problem dado os nossos dados, $x$, a nossa variável resposta, $y$, e um erro, $u$. Como podemos construir uma reta que melhor se encaixa nesses dados e permite estimar resultados futuros com base no que já sabemos? Em outras palavras, como podemos obter estimativas, $\hat{\beta}_0$ e $\hat{\beta}_1$, para os nossos parâmetros $\beta_0$ e $\beta_1$?
 
 Para isso que utilizamos o método dos Mínimos Quadrados Ordinários, ele nos permite criar uma boa estimativa para esses valores de forma a construir uma reta regressora que melhor se encaixa nos dados. A primeira etapa é modificar a nossa equação principal e pensar em termos do valor esperado.
 
@@ -102,6 +105,7 @@ $$
 y &= \beta_0 + \beta_1x + u \newline
 y - \beta_0 - \beta_1x &= u \newline
 \text{E}(y - \beta_0 - \beta_1x) &= \text{E}(u) \newline
+\tag{1}
 \text{E}(y - \beta_0 - \beta_1x) &= 0
 \end{align}
 $$
@@ -110,7 +114,7 @@ Ou ainda, dado que $\text{E}(xu)=0$,
 
 $$
 \begin{equation}
-\tag{1}
+\tag{2}
 \text{E}(x(y-\beta_0-\beta_1x)) = 0
 \end{equation}
 $$
@@ -121,7 +125,7 @@ $$
 n^{-1}\sum_{i=1}^n x_i(y_i-\hat{\beta}_0-\hat{\beta}_1x_i)=0
 $$
 
-Podemos tentar resolver essa equação para $\hat{\beta}_0$ ou $\hat{\beta}_1$, só que temos somente uma equação, temos que achar uma outra com os mesmo termos para fazer a substituição. Para isso vamos aplicar a mesma regra de expandir a esperança a outra equação.
+Podemos tentar resolver essa equação para $\hat{\beta}_0$ ou $\hat{\beta}_1$, só que temos somente uma equação, temos que achar uma outra com os mesmo termos para fazer a substituição. Para isso vamos aplicar a mesma regra de expandir a esperança à equação $1$.
 
 $$
 \begin{align}
@@ -136,7 +140,7 @@ $$
 Em que $\overline{y}$ é a média amostral de $y$, e igualmente para $x$. O que nos permite escrever $\beta_0$ em termos dos outros componentes.
 
 $$
-\tag{2}
+\tag{3}
 \hat{\beta}_0 = \overline{y}-\hat{\beta}_1 \overline{x}
 $$
 
@@ -163,11 +167,11 @@ $$
 Ou seja, desde que $\sum_{i=1}^n(x_i-\overline{x})^2>0$, podemos estimar $\beta_1$ como sendo:
 
 $$
-\tag{3}
+\tag{4}
 \hat{\beta}_1 = \frac{\sum_{i=1}^n(x_i-\overline{x})(y_i-\overline{y})}{\sum_{i=1}^n(x_i-\overline{x})^2}
 $$
 
-E tendo uma estimativa para $\beta_1$, podemos usar a fórmula que usamos acima para substituir o valor de $\beta_0$ para determiná-lo, $\hat{\beta}_0 = \overline{y}-\hat{\beta}_1 \overline{x}$.
+E tendo uma estimativa para $\beta_1$, podemos usar a equação $3$ para determinar o $\hat{\beta}_0$.
 
 E com isso temos a nossa estimativa tanto para o intercepto quanto para o coeficiente linear da reta!
 
@@ -195,11 +199,11 @@ Agora, embora tenhamos derivado uma fórmula para os nossos parâmetros como pod
 Logo, se pegássemos todos os resíduos de uma regressão e somássemos, sabemos que temos a melhor reta quando esta soma tiver o menor valor possível, matematicamente queremos:
 
 $$
-\tag{4}
+\tag{5}
 \sum_{i=1}^n \hat{u}_i^2 = \sum_{i=1}^n (y_i-\hat{\beta}_0-\hat{\beta}_1x_i)^2
 $$
 
-O motivo de usarmos o quadrado do erro fará mais sentido quando estudarmos o que se chama modelos lineares generalizados. A segunda parte dessa igualdade mostra somente como o nosso erro é construído através dos nosso parâmetros.
+O motivo de usarmos o quadrado do erro fará mais sentido mais a frente. A segunda parte dessa igualdade mostra somente como o nosso erro é construído através dos nosso parâmetros.
 
 Formalizando esse problema de minimização temos que:
 
@@ -231,12 +235,12 @@ Que são exatamente as equações que vimos anteriormente ao manipularmos a espe
 
 Como disse anteriormente, MQO é a forma mais comum de implementar métodos de regressão linear em Python. Dessa forma, iremos apresentar duas formas de implementar o algoritmo, uma "artesanal" e outra usando o pacote SciKit-Learn que fornece uma implementação de regressão linear para Python.
 
-Primeior veremos essa implementação do zero. Podemos construir o algoritmo da seguinte forma
+Primeiro veremos essa implementação do zero. Podemos construir o algoritmo da seguinte forma
 
 ```python
 import numpy as np
 
-X, y = np.genfromtxt("file.csv", delimiter=",", skip_header=True, unpack=True)
+X, y = np.genfromtxt("file.csv", unpack=True)
 
 y = y/1000
 
@@ -262,7 +266,7 @@ A segunda implementação é usando o pacote SciKit-Learn. Podemos usar a classe
 from sklearn.linear_model import LinearRegression
 import numpy as np
 
-X, y = genfromtxt("file.csv", delimiter=",", skip_header=True, unpack=True)
+X, y = genfromtxt("file.csv", unpack=True)
 
 y = y/1000
 
@@ -276,7 +280,8 @@ Nesse snippet `reg` é uma classe do tipo `LinearRegression` e por isso tem aces
 
 Como disse anteriormente, MQO é a forma mais comum de implementar métodos de regressão linear em Julia. Dessa forma, iremos apresentar duas formas de implementar o algoritmo, uma "artesanal" e outra usando o pacote GLM.jl que fornece uma implementação de regressão linear para Julia.
 
-Primeiro a nossa implementação caseira. Ela é muito mais para fins de entendermos como o algoritmo funciona e pensarmos em como implementar ele. Para isso podemos construir a seguinte função:
+Primeiro a nossa implementação caseira. Podemos implementá-lo da seguinte maneira:
+
 ```julia
 using CSV
 using Statistics
@@ -332,11 +337,13 @@ Algumas anotações sobre sintaxe e tipos. Criamos a `Table` `t` pois o `lm` só
 > ──────────────────────────────────────────────────────────────────────────
 > ```
 > Junto dos valores dos coeficientes podemos encontrar também uma série de estatísicas como o desvio padrão (`Std. Error`), o p-valor (`Pr(>|t)`), etc. 
-> Podemos observar também que o uso do método em GML.jl gera os mesmos valores para $\beta_0$ e $\beta_1$.
+> Podemos observar também que o uso do método em GML.jl gera os mesmos valores para $\beta_0$ e $\beta_1$ que quando calculamos cada estimador "na mão".
 
 ## Equações normais
 
-Quando analisamos o MQO antes nesse capítulo focamos somente no caso de que há somente uma variável no modelo. Isso, muitas vezes, não é o caso na realidade. E embora o MQO como foi apresentado consegue trabalhar com diversas variáveis, apresento aqui uma alternativa a ele, as chamadas **equações normais**, que, em essência realizam o mesmo problema de minimizar os erros só que construído de uma outra maneira.
+Ao estudar o MQO na seção anterior focamos somente no caso de que há somente uma variável no modelo. Isso, muitas vezes, não é o caso na realidade. E embora o MQO como foi apresentado consegue trabalhar com diversas variáveis, apresento aqui uma alternativa a ele, as chamadas **equações normais**, que, em essência realizam o mesmo problema de minimizar os erros só que construído de uma outra maneira.
+
+> No caso de usarmos tanto o SciKit-Learn quanto o GLM.jl não precisamos nos preocupar com esse caso de diversas variáveis pois ambos já são equipados para lidar com tal situação.
 
 Dado um conjunto de treino com $m$ observações e $n$ parâmetros podemos construir uma matriz $X_{m \times n}$ (tecnicamente ela é $m \times n + 1$ se contarmos o intercepto, $\theta_0$ que daí nesse caso a coluna adicional seria a primeira e seria somente do valor 1, mas para fins de demonstração vou supor que ele é zero pois isso não altera a demonstração).
 
@@ -352,7 +359,7 @@ X =
 \right]
 $$
 
-De forma similar podemos definir um vetor coluna com tamanho $n$ (o número de parâmetros) que contém todos os nossos $\theta$.
+De forma similar, podemos definir um vetor coluna com tamanho $n$ (o número de parâmetros) que contém todos os nossos $\theta$.
 
 $$
 \theta =
@@ -366,7 +373,7 @@ $$
 \right]
 $$
 
-Logo, podemos multiplicar um pelo outro, só que $(x^{(i)})^T\theta$ é a própria previsão do nosso modelo, $h_{\theta}(x^(i))$, então temos que:
+Naturalmente, podemos multiplicar um pelo outro, só que $(x^{(i)})^T\theta$ é a própria previsão do nosso modelo, $h_{\theta}(x^(i))$, então temos que:
 
 $$
 X\theta =
@@ -455,22 +462,22 @@ X\theta - \vec{y} &=
 \end{align}
 $$
 
-A construção acima, onde em cada linha no vetor temos o resultado da nossa estimativa menos o valor real, é muito similar a nossa equação *4* que vimos na seção anterior, com a única diferença sendo que aquela usávamos o quadrado dessa diferença. Esse tipo de equação, em essência nos diz o quão longe estamos do nosso valor verdadeiro então por isso vamos dar a ela o nome de *Função de Custo* (as vezes chamada de "Função de Perda"). **Uma função de custo $J$ nos diz o quão longe o nosso modelo está dos valores reais e por causa disso podemos usá-la para ajustar o nosso modelo a obter melhores resultados.**
+A construção acima, onde em cada linha no vetor temos o resultado da nossa estimativa menos o valor real, é muito similar a nossa equação $5$ que vimos na seção anterior, com a única diferença sendo que aquela usávamos o quadrado dessa diferença. Esse tipo de equação, em essência nos diz o quão longe estamos do nosso valor verdadeiro então por isso vamos dar a ela o nome de *Função de Custo* (as vezes chamada de "Função de Perda"). **Uma função de custo $J$ nos diz o quão longe o nosso modelo está dos valores reais e por causa disso podemos usá-la para ajustar o nosso modelo a obter melhores resultados.**
 
 Definiremos a Função de Custo $J(\theta)$ como:
 
 $$
-\tag{5}
+\tag{6}
 J(\theta) = \frac{1}{2}\sum_{i=1}^{m}(h_{\theta}(x^{(i)})-y^{(i)})^2
 $$
 
 Embora essa equação pareça assustadora a primeira vista, ela é fácil de compreender caso a quebremos em seus componentes. Uma soma de 1 até $m$, onde $m$ é o número de observações dos dados, do quadrado da diferença entre o valor estimado ($h_{\theta}(x^{(i)})$) e o valor real ($y^{(i)}$).  
 
-> Aqui vale a ressalva antes de prosseguirmos sobre notação, o sobrescrito $(i$) denota a $i$-ésima observação no conjunto de dados, por exemplo $x^{(2)}$ é a segunda observação.
+> Aqui vale a ressalva antes de prosseguirmos sobre notação, o sobrescrito $(i$) denota a $i$-ésima observação no conjunto de dados, por exemplo $x^{(2)}$ é a segunda observação no conjunto.
 
-A questão que pode surgir é onde que os outros elementos dessa conta entram. Por que dividimos o resultado da soma por dois? Por que elevamos ao quadrado? A resposta para a primeira pergunta é, por enquanto, pouco satisfatória, mais a frente, quando tivermos que manipular essa equação, a matemática se torna mais fácil quando dividimos o resultado por dois, tal operação não afeta o resultado final, só torna os cálculos mais fáceis. Já a segunda pergunta é mais interessante. Mais a frente quando estudarmos modelos lineares de forma mais ampla veremos que regressão linear é um caso específico de toda uma família de modelos chamada Modelos Lineares Generalizados (do inglês General Linear Models, GLM) e nesse momento a existência da exponenciação ficará mais clara.
+A questão que pode surgir é onde que os outros elementos dessa conta entram. Por que dividimos o resultado da soma por dois? Por que elevamos ao quadrado? A resposta para a primeira pergunta é, por enquanto, pouco satisfatória, mais a frente, quando tivermos que manipular essa equação, a matemática se torna mais fácil quando dividimos o resultado por dois, tal operação não afeta o resultado final, só torna os cálculos mais fáceis. Já a segunda pergunta é mais interessante. Sobre o caso do exponente, mais claro, quando tratarmos mais afundo das bases probabilísticas do modelo de regressão linear, o porquê usarmos o quadrado da diferença ficará mais claro
 
-O uso dessa função $J(\theta)$ é vital para que possamos criar um bom modelos. Alteremos a matrzi que vimos acima para que ela corresponda a nossa função de custo. Usando a propriedade de que para um vetor $\vec{v}$ qualquer de tamanho $n$, temos que $\vec{v}^T\vec{v} = \sum^n_{i=1} \vec{v}_i^2$ (propriedade esta, também chamada de norma euclidiana). Podemos expressar a função de custo $J(\theta)$ em forma de matrizes.
+O uso dessa função $J(\theta)$ é vital para que possamos criar bom modelos. Alteremos a matriz que vimos acima para que ela corresponda a nossa função de custo. Usando a propriedade de que para um vetor $\vec{v}$ qualquer de tamanho $n$, temos que $\vec{v}^T\vec{v} = \sum^n_{i=1} \vec{v}_i^2$ (a chamada "norma euclidiana"). Podemos expressar a função de custo $J(\theta)$ em forma de matrizes.
 
 $$\frac{1}{2}(X\theta - \vec{y})^T(X\theta-\vec{y}) = \frac{1}{2}\sum_{i=1}^{m}(h_{\theta}(x^{(i)})-y^{(i)})^2$$
 
@@ -503,21 +510,21 @@ $$
 Reorganizando a equação temos então que:
 
 $$
-\tag{6}
+\tag{7}
 \theta = (X^TX)^{-1}X^T\vec{y}
 $$
 
-E com isso temos uma equação que nos dá os coeficientes ótimos com base no nosso conjunto de dados de treino! Ao usarmos a equação *6* podemos com uma única conta achar os valores ótimos para os nosso parâmetros usando apenas de algumas manipulações de matrizes.
+E com isso temos uma equação que nos dá os coeficientes ótimos com base no nosso conjunto de dados de treino! Ao usarmos a equação $7$ podemos com uma única conta achar os valores ótimos para os nosso parâmetros usando apenas de algumas manipulações de matrizes.
 
 ### Implementação em Python
 
-Bibliotecas como o SciKit-Learn usam já versões das equações normais para resolver seus problemas de regressão linear, dessa forma a versão incluída aqui é uma construída do zero usando somente o [NumPy](https://numpy.org/).
+Bibliotecas como o SciKit-Learn usam versões das equações normais para resolver seus problemas de regressão linear, dessa forma a versão incluída aqui é uma construída do zero usando somente o [NumPy](https://numpy.org/).
 
 ```python
 import numpy as np
 from numpy.linalg import inv
 
-X, y = np.genfromtxt("file.csv", delimiter=",", skip_header=True, unpack=True)
+X, y = np.genfromtxt("file.csv", unpack=True)
 
 y = y / 1000
 
@@ -556,22 +563,22 @@ Outro detalhe é que usamos a função `ones` para criar um *array* bidimensiona
 > Podemos usar nosso o snippet acima para rodar o código com o nosso conjunto de dados. Isso nos retorna um vetor na seguinte forma `[71.28977422922198, 0.13453271876836156]`, o primeiro valor é o nosso intercepto, o seguinte o nosso $m$.
 > Aplicando esse valor nos nossos dados podemos gerar o seguinte gráfico
 > ![MQO_estimate](../../_images/MQO_estimate.png "Estimativas usando equações normais")
-> Uma curva que, de formal geral, parece se encaixar muito bem nos nossos dados e deve gerar boas previsões! (A análise do que faz um bom *fit* é assunto para outra seção).
+> Uma curva que, de formal geral, parece se encaixar muito bem nos nossos dados e deve gerar boas previsões! (A análise do que faz um bom *fit* é assunto para outros capítulos).
 
 ## Método de Gradiente
 
-Embora o MQO e equação normal nos deem os valores exatos de quais os melhores parâmetros para uma regressão linear são algoritmos relativamente custosos computacionalmente por terem que fazer operações obre todo o conjunto de dados, o que, conforme o nosso conjunto de dados cresce, ou quando temos muitas variáveis, pode ser custoso demais computacionalmente. Para isso existe uma outra classe de algoritmos que melhor se encaixa a essa situação. 
+Embora o MQO e equação normal nos deem os valores exatos de quais os melhores parâmetros para uma regressão linear, eles são algoritmos relativamente custosos computacionalmente por terem que fazer operações sobre todo o conjunto de dados, o que, conforme o nosso conjunto de dados cresce, ou quando temos muitas variáveis, pode ser custoso demais computacionalmente. Para isso existe uma outra classe de algoritmos que melhor se encaixa a essa situação. 
 
-Método do Gradiente é um algoritmo de [otimizador](../../matematica/otimizadores/metodo_gradiente.md) muito usado no campo de aprendizado de máquina. Embora ele não nos dê os valores exatos, na maior parte das vezes ele é capaz de entregar valores bons o suficientes que justificam seu uso em muitas aplicações.
+[Método do Gradiente](../../matematica/otimizadores/metodo_gradiente.md) é um algoritmo de otimizador muito usado no campo de aprendizado de máquina. Embora ele não nos dê os valores exatos, na maior parte das vezes ele é capaz de entregar valores bons o suficientes que justificam seu uso em muitas aplicações.
 
-O primeiro passo para a construção do algoritmo é termos em mão uma função para avaliar o desempenho das nossas previsões, e, como visto na seção anterior, a nossa função de custo para uma regressão linear é a equação *5*, 
+O primeiro passo para a construção do algoritmo é termos em mão uma função para avaliar o desempenho das nossas previsões, e, como visto na seção anterior, a nossa função de custo para uma regressão linear é a equação $6$, 
 
 $$J(\theta) = \frac{1}{2}\sum_{i=1}^{m}(h_{\theta}(x^{(i)})-y^{(i)})$$
 
-Com ela podemos avaliar o resultado das nossas previsões e a cada iteração do algoritmo de descida de gradiente melhorar a nossa estimativa para os $\theta$s. A forma como esse valor é atualizado segue a equação *7* logo abaixo,
+Com ela podemos avaliar o resultado das nossas previsões e a cada iteração do algoritmo de descida de gradiente melhorar a nossa estimativa para os $\theta$s. A forma como esse valor é atualizado segue na equação $8$ logo abaixo,
 
 $$
-\tag{7}
+\tag{8}
 \theta_j := \theta_j - \alpha \frac{\partial}{\partial \theta_j}J(\theta)
 $$
 
@@ -603,8 +610,8 @@ Esse último ponto é importante "cada nova iteração não há mudanças releva
 > Embora a formulação acima pareça razoavelmente complicada, ela é relativamente simples para aqueles com alguma familiaridade com derivadas parciais, apenas dois pontos merecem atenção. O primeiro é na linha quatro, onde colocamos a soma sobre todas as observações (aquela com limite superior $m$) "fora" da derivada. Isso se dá por causa de uma regra que diz que a derivada de somas é a soma de derivadas. Além disso, na última linha simplificamos o produto das somas para ser a soma dos produtos.
 > Outros dois detalhes que merecem atenção é na linha três onde substituo $h_{\theta}$ por sua definição usando uma soma como vimos anteriormente; e na linha cinco onde a derivada parcial de $J(\theta)$ é simplificada a $x_j$, isso é facilmente verificável pois o único termo que depende do $\theta$ em questão é $x_j$.
 
-Esse algoritmo descrito acima é o nosso próprio [método de gradiente](../../matematica/otimizadores/metodo_gradiente.md)! Essa versão em específica é o método do gradiente em lote, ou descida do gradiente em lote (do inglês, *batch gradient descent*). Existem outros algoritmos que funcionam na mesmo lógica de descida pelo gradiente como o descida de gradiente estocástico (do inglês, *stochastic gradient descent*) enquanto o aplicado acima precisa percorrer todo o conjunto de dados de teste para dar "um passo", ou seja, ajustar os parâmetros, o método estocástico faz a correção do valor a cada novo valor do conjunto de treino. Por percorrer todo o conjunto de dados de treino, a forma em lote costuma demandar mais poder computacional, mas, na forma apresentada aqui, costuma encontrar o máximo global sem cair em um local e ficar preso ali; por outro lado o estocástico demanda muito menos poder computacional para achar um bom valor de $\theta$, mas nunca costuma encontrar o ponto ótimo e fica oscilando em volta do mínimo global.
-De forma geral, o método estocástico acaba sendo preferido por convergir mais rapidamente e fornecer resultados bons o suficientes para a maioria dos casos.
+Esse algoritmo descrito acima é o nosso próprio método de gradiente! Essa versão em específica é o **método do gradiente em lote**, ou descida do gradiente em lote (do inglês, *batch gradient descent*). Existem outros algoritmos que funcionam na mesmo lógica de descida pelo gradiente como o descida de gradiente estocástico (do inglês, *stochastic gradient descent*) enquanto o aplicado acima precisa percorrer todo o conjunto de dados de teste para dar "um passo", ou seja, ajustar os parâmetros, o método estocástico faz a correção do valor a cada novo valor do conjunto de treino. Por percorrer todo o conjunto de dados de treino, a forma em lote costuma demandar mais poder computacional, mas, na forma apresentada aqui, costuma encontrar o máximo global sem cair em um local e ficar preso ali; por outro lado o estocástico demanda muito menos poder computacional para achar um bom valor de $\theta$, mas por causa de sua formulação não será capaz de achar o ponto ótimo e sim ficará oscilando em volta do mínimo global.
+De forma geral, o método estocástico acaba sendo o preferido por convergir mais rapidamente e fornecer resultados bons o suficientes para a maioria dos casos.
 
 > [!INFO] Por que diminuir?
 > Subtraímos do nosso valor de $\theta$ o $\alpha$ em vez adicionar porque nesse caso estaríamos indo para o lado oposto de um mínimo global, um máximo global. 
@@ -618,7 +625,7 @@ De forma geral, o método estocástico acaba sendo preferido por convergir mais 
 > ![BGD_epoch7](../../_images/BGD_epoch7.png "Curva de regressão com os parãmetros iguais a 0")
 > E ao compararmos os parâmetros obtidos por esse método e aqueles pelo MQO vemos que a diferença é relativamente baixa. Para o $\theta_0$ aproximadamente 6% ($\theta_0 = 67.2312$) e para o $\theta_1$ menos de 1% ($\theta_1 = 0.1338$).
 
-Como comentei antes os algoritmos de descida de gradiente tem o problema de serem suscetíveis a mínimos locais, contudo, no caso da regressão linear isso não é um problema pois não é mínimos locais para a nossa função de custo $J(\theta)$. Sabemos disso pois a função é estritamente côncava dada o seu próprio formato, $(h_{\theta}(x^{(i)})-y^{(i)})^2$, e por isso cada passo do algoritmo sempre tende para o mínimo global.
+Como comentei antes os algoritmos de descida de gradiente tem o problema de serem suscetíveis a mínimos locais, contudo, no caso da regressão linear isso não é um problema pois não há mínimos locais para a nossa função de custo $J(\theta)$. Sabemos disso pois a função é estritamente côncava dada o seu próprio formato, $(h_{\theta}(x^{(i)})-y^{(i)})^2$, e por isso cada passo do algoritmo sempre tende para o mínimo global.
 
 ### Python
 
@@ -634,7 +641,7 @@ Primeiro a descida de gradiente em lote (BGD, *batch gradient descent*). Até on
 function GDBatch(
     X::AbstractArray,
     y::AbstractArray,
-    alpha::AbstractFloat = 0.001
+    alpha::AbstractFloat = 0.00001
 )
     m = length(X)
 
@@ -647,7 +654,7 @@ function GDBatch(
     dp_theta_1(X1, y1) = (1/m) * sum((y_hat - y1) .* X1
     
     epoch = 0
-    while epoch <= 200
+    while epoch <= 10
         theta_0_ajuste = dp_theta_0(y)
         theta_1_ajuste = dp_theta_1(X, y)
 
@@ -670,6 +677,10 @@ Já para a descida estocástica podemos ter a seguinte função:
 ```julia
 # Ainda em construção
 ```
+
+## Interpretação estatística
+
+Voltemos a nossa equação principal sobre 
 
 ---
 
