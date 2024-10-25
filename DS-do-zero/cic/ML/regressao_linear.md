@@ -680,13 +680,103 @@ Já para a descida estocástica podemos ter a seguinte função:
 
 ## Interpretação estatística
 
-Voltemos a nossa equação principal sobre 
+Voltemos a nossa equação original da regressão linear.
+
+$$
+\tag{9}
+y^{(i)} = \theta^Tx^{(i)}+\epsilon^{(i)}
+$$
+
+Onde $\epsilon$ é o nosso erro, tudo aquilo que não é capturado pelo nosso modelo, que assumimos ser do tipo ruído branco gaussiano, ou seja que a média das observações é zero e a variância $\sigma^2$. Podemos denotar isso da seguinte forma:
+
+$$
+\tag{10}
+\epsilon^{(i)} \sim \mathcal{N}(0,\,\sigma^{2})
+$$
+
+Lemos isso como "epsilon é distribuído com média 0 e variância sigma ao quadrado".
+
+Além disso, também assumimos, e essa é a suposição mais impactante, é que os erros são do tipo $i.i.d.$, independentes e identicamente distribuídos, ou seja que o erro de valor nada tem a ver com o erro de outro. Na vida real, sabemos, que na maioria das vezes, essa suposição não se sustenta. Pensando no exemplo das casas que usamos anteriormente, o erro que acaba por "desviar" o preço de uma casa para cima ou para baixo do seu preço determinado pela área muitas vezes é relacionado de uma casa para outra, como por exemplo o bairro da casa. O ponto aqui é que a suposição de $i.i.d.$ embora não necessariamente verdade é boa suficiente para que possamos seguir com a análise do modelo testar seu desempenho.
+
+As suposições sobre o fator de erro do nosso conjunto de dados precisam ser verdadeiras para que possamos prosseguir com a regressão linear. De novo, na vida real talvez os erros não sejam completamente distintos entre si, mas talvez sejam suficientemente distintos para que possamos assumir isso e seguir com o processo de regressão.
+
+Podemos então definir uma função de densidade de probabilidade desse fator. Para o erro temos
+
+$$
+p(\epsilon^{(i)}) = \frac{1}{\sqrt{2\pi\sigma}}\exp\left( -\frac{(\epsilon^{(i)})^2}{2\sigma^2} \right)
+$$
+
+E por consequência da equação $9$ temos então que,
+
+$$
+p(y^{(i)} | x^{(i)};\theta ) = \frac{1}{\sqrt{2\pi\sigma}}\exp\left( -\frac{(y^{(i)}-\theta^Tx^{(i)})^2}{2\sigma^2} \right)
+$$
+
+Dessa forma, ao pensarmos então qual a distribuição dos nosso valores reais dado nossos dados e parâmetros, como sabemos que o erro tem média zero, a média do valor real de qualquer ponto aleatório acaba sendo a a nossa própria previsão ($\theta^Tx^{(i)}$). Matematicamente, então, temos
+
+$$
+\tag{11}
+y^{(i)} | x^{(i)};\theta \sim \mathcal{N}(\theta^Tx^{(i)}, \sigma^2)
+$$
+
+> **A a distribuição de cada valor real de y dado x parametrizado por theta é dado por média theta transposto x com média sigma ao quadrado.**
+
+> [!INFO] Notação
+> Note que na definição da função de densidade de $y$ escrevi $p(y^{(i)} | x^{(i)};\theta)$ usei um ponto e vírgula e não uma vírgula antes do $\theta$. Isso porque lemos aquilo como "x parametrizado por theta" ou seja, theta não é uma variável aleatória na nossa função ($p(y^{(i)} | x^{(i)},\theta)$).
+> Para aqueles com maior conhecimento de estatística vale o comentário de que tal interpretação é de ordem frequentista e não bayesiana.
+
+
+Agora, caso queiramos pensar não num valor específico de $y^{(i)}$ e sim em todo o conjunto de valores reais de $y$, $\hat{y}$, podemos então ter uma função de probabilidade dada por $p(\hat{y}|X;\theta)$ onde $X$ é todo o nosso conjunto de dados. Se invertemos essa função para pensarmos em termos do $\theta$ que melhor se encaixa em $X$ para termos $\hat{y}$, voltamos ao nosso problema inicial de achar os parâmetros ideias do modelo. Vamos então definir uma função em que possamos pensar em um conjunto de dados fixos e o que mudamos é os valores de $\theta$ tentando achar um ótimo. Vamos chamar tal função de verossimilhança e denotá-la com $\mathcal{L}$.
+
+$$
+\mathcal{L}(\theta) = p(\hat{y}|X;\theta)
+$$
+
+E como assumimos que os erros são $i.i.d.$ podemos então definir $\mathcal{L}$ como
+
+$$
+\begin{align}
+\mathcal{L}(\theta) &= \prod_{i=1}^{m} p(\hat{y}|X;\theta) \newline
+&= \prod_{i=1}^{m}\frac{1}{\sqrt{2\pi\sigma}}\exp\left( -\frac{(y^{(i)}-\theta^Tx^{(i)})^2}{2\sigma^2} \right)
+\end{align}
+$$
+
+Agora, embora tenhamos definido a verossimilhança, é útil pensarmos em termos do logaritmo da verossimilhança, $\ell$,
+
+$$
+\begin{align}
+\ell(\theta) &= \ln\mathcal{L}(\theta) \newline
+&= \ln \prod_{i=1}^{m}\frac{1}{\sqrt{2\pi\sigma}}\exp\left( -\frac{(y^{(i)}-\theta^Tx^{(i)})^2}{2\sigma^2} \right) \newline
+&= \sum_{i=1}^{m}\ln \left(\frac{1}{\sqrt{2\pi\sigma}}\exp\left( -\frac{(y^{(i)}-\theta^Tx^{(i)})^2}{2\sigma^2} \right) \right) \newline
+&= \sum_{i=1}^{m}\ln\left( \frac{1}{\sqrt{2\pi\sigma}}\right) + \ln\left( \exp\left( -\frac{(y^{(i)}-\theta^Tx^{(i)})^2}{2\sigma^2} \right) \right) \newline
+\tag{12}
+&= m\ln\left( \frac{1}{\sqrt{2\pi\sigma}}\right)-\frac{1}{2\sigma^2}\sum_{i=1}^{m}(y^{(i)}-\theta^Tx^{(i)})^2
+\end{align}
+$$
+
+Dois pontos merecem atenção. Pude simplificar a conta pois o logaritmo de uma multiplicação é soma dos logaritmos. O expoente $\exp$ pode ser simplificado pois estamos lidando com o logaritmo natural, logaritmo de base $e$, então aplicando o logaritmo ficamos só com o expoente e podemos tirar as constantes para fora da soma.
+
+A estimativa máxima da verossimilhança (do inglês, *maximum likelihood estimation*), MLE, nos diz então que maximizar a função de verossimilhança, e por consequência o seu log, nos dá o melhor valor para $\theta$ já que este é o valor que melhor descreve o conjunto de dados. Podemos então maximizar a equação $12$. No entanto o primeiro termo é uma constante logo ele não afeta o resultado da maximização, o mesmo é verdade para $\frac{1}{2\sigma^2}$, e aqui podemos ver algo interessante. note que a um sinal de menos antes da somatória, e maximizar $-f(x)$ é equivalente a minimizar $f(x)$ ([prova](https://math.stackexchange.com/questions/333623/proof-that-maximizing-a-function-is-equivalent-to-minimizing-its-negative), depois falo sobre ela). Dessa forma em vez de maximizar o log da verossimilhança podemos minimizar a seguinte função:
+
+$$
+\sum_{i=1}^{m}(y^{(i)}-\theta^Tx^{(i)})^2
+$$
+
+Como estamos tratando de um problema de otimização podemos adicionar uma constante que não altera o resultado final
+
+$$
+\frac{1}{2}\sum_{i=1}^{m}(y^{(i)}-\theta^Tx^{(i)})^2
+$$
+
+Que é a nossa própria função de custo $J(\theta)$! Ou seja, essa demonstração nos diz que ao minimizarmos a função de custo estamos chegando aos valores ideais de $\theta$, desde que suponhamos que os erros são do tipo $i.i.d.$ gaussianos.
 
 ---
 
 ## Referências
 
-**Stanford Online**. Stanford CS229: Machine Learning - Linear Regression and Gradient Descent | Lecture 2 (Autumn 2018). https://www.youtube.com/watch?v=4b4MUYve_U8.
+**Stanford Online** (2020). Stanford CS229: Machine Learning - Linear Regression and Gradient Descent | Lecture 2 (Autumn 2018). https://www.youtube.com/watch?v=4b4MUYve_U8.
+
+**Stanford Online** (2020). Locally Weighted & Logistic Regression | Stanford CS229: Machine Learning - Lecture 3 (Autumn 2018). https://www.youtube.com/watch?v=het9HFqo1TQ.
 
 **doggo dot jl**. \[05x02\] Linear Regression | Regression | Supervised Learning | Machine Learning \[Julia\].  https://www.youtube.com/watch?v=n03pSsA7NtQ.
 
