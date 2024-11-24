@@ -4,31 +4,34 @@ Vamos supor que você trabalha em um laboratório médico e se quer criar uma fo
 
 Vamos tentar ilustrar isso com um exemplo. Digamos que tenhamos o seguinte conjunto de dados sobre o tamanho de nódulos, no eixo x temos o tamanho deles e no eixo Y definimos um valor binário como o nosso target, se o nódulo é maligno ou não, 0 ou 1.
 
-INSERIR AQUI O GRÁFICO QUE VOU FAZER DEPOIS
+!["distribuicao-de-nodulos"](../../_images/reg_logit_exemplo.jpg)
+*Figura 1: Conjunto de dados de exemplo.*
 
 Obviamente esse conjunto de dados é extremamente simplista e serve apenas para fins de demonstração, mais tarde mostrarei um conjunto mais adequado para exemplos futuros.
 
 Rodando uma regressão temos uma curva com o seguinte formato.
 
-INSERIR GRÁFICO DA REGRESSÃO LINEAR SEM OUTLIER
+![dados_com_reg_linear](../../_images/reg_logit_sem_outlier.jpg)
+*Figura 2: Regressão linear sobre o nosso conjunto de exemplo.*
 
-Podemos avaliar então, se o valor da regressão for maior que 0,5 clasificamos o ponto como 1, que é provavél que seja maligno, caso contrário 0, benigno. Embora tal solução pareça eficiente ela não se sustenta caso estressemos um pouco montando um conjunto de dados um pouco diferente
+Podemos avaliar então, se o valor da regressão for maior que 0,5 clasificamos o ponto como 1, que é provavél que seja maligno, caso contrário 0, benigno. Embora tal solução pareça eficiente ela não se sustenta caso estressemos um pouco montando um conjunto de dados um pouco diferente.
 
-CONJUNTO COM OUTLIER
+No novo conjunto o ponto mais a esquerda é 1, só que seu valor é grande demais e a regressão linear vai acabar capturando o efeito desse ponto muito maior que os outros e mudando os parâmetros e formando a curva que segue. E, por consequência outros valores que claramente deveriam ser marcados como 1 acaba sendo mal classificados como 0.
 
-No novo conjunto acima o ponto mais a esquerda é 1, só que seu valor é grande demais e a regressão linear vai acabar capturando o efeito desse ponto muito maior que os outros e mudando os parâmetros e formando a curva que segue. E, por consequência outros valores que claramente deveriam ser marcados como 1 acaba sendo mal classificados como 0.
-
-INSERIR REGRESSÃO COM OUTLIER
+![conjunto_dados_com_outlier](../../_images/reg_logit_com_outlier.jpg)
+*Figura 3: Regressão linear sobre o conjunto com um outlier.*
 
 Tal problema se torna ainda maior conforme a fronteira de decisão, isso é, quando algo é 0 ou 1, se torna ainda mais enevoada. Precisamos de um novo tipo de algoritmo para lidar com isso, problemas como esse, em que estamos tentando estimar um valor discreto (0 ou 1) chamamos de **problemas de classificação e, consequentemente, precisamos de algoritmos de classificação**.
 
 Um dos algoritmos mais comuns para problemas de classificação é a regressão logística, ela é baseada na curva logística inicialmente criada no século 19 pelo matemático belga Pierre François Verhulst como um modelo de crescimento populacional. Não é claro porque ele a chamou de "logística". Anos depois, já no século 20 se observou que ela pode ser usada como uma fronteira de decisão quando queremos estimar a probabilidade de uma classe (por isso chamamos de regressão inclusive, mesmo sendo usado em problema de classificação) e como modelo se tornou amplamente utilizada em uma série de problemas.
 
-INSERIR FOTO DA CURVA LOGÍSTICA PODE SER DA WIKIPEDIA 
+![curva_logistica](../../_images/log_reg_std.jpg)
+*Figura 4: Curva logística padrão.*
 
 Ao longo deste capítulo usarei como dados de exemplo uma pesquisa que catalogou a presença de uma espécie em extinção de aranha lobo em praia pela costa do Japão, assim como o tamanho dos grão de areia na praia em questão. O gráfico abaixo nos mostra esses dados, sendo o eixo y a presença ou não da aranha (1 ou 0) e o no eixo x o tamanho dos grãos de areia.
 
-INSERIR DADOS
+![aranha-lobo](../../_images/wolfspider.jpg)
+*Figura 5: Tamanho dos grão de areia das praia em que foi encontrada uma aranha lobo.*
 
 ## Definição formal
 
@@ -46,7 +49,8 @@ O elemento da equação que controla a "forma" da equação, isso é, o quão pa
 
 Essas outras curvas podem se encaixar ao nosso conjunto de dados, queremos uma que melhro represente os nossos dados de forma que, ao passarmos uma observação, a função nos retorna a probabilidade da observação pertencer a classe 1.
 
-INSERIR EXEMPLO DE COMO PODEMOS MUDAR A CURVA USANDO PARAMETROS
+![mudancas_com_param](../../_images/changes_log_reg.jpg)
+*Figura 6: Como parâmetros alteram o formato da curva.*
 
 Podemos então ter um conjunto de parâmetros $\theta$ e dados $x$, ambos representados como vetores, e colocá-los como nosso expoente. Dessa forma podemos construir um número de curvas epara ter aquela que melhor se adequa ao conjunto de dados que temos.
 
@@ -125,9 +129,25 @@ Com a derivada temos então a nossa função de custo para poder usar em algum m
 
 Nas seções abaixo vamos explorar o uso desses algoritmos para poder resolver um problema de regressão logística.
 
+### Implementação em Julia
+
+Mais a frente veremos como a biblioteca SciKit-Learn nos permite o uso de diversos *solvers* para resolver um problema de regressão logística, Julia, por sua vez, embora tenha bibliotecas implementadas com todos esses métodos, a principal biblioteca para resolver problemas de modelos lineares não funciona dessa forma, permitindo o uso de diversos *solvers*.
+
+A [GLM.jl](https://juliastats.org/GLM.jl/stable/) se baseia no conceito de modelos regulares generalizados e utiliza uma função única para otimizá-los o que importa aqui é o tipo de distribuição e "*link*" que se passa paar esse método. O Iteratively Reweighted Least Squares (IRLS) usado pelo GLM.jl consegue se adaptar a todos os modelos lineares e é o usado pela implementação para resolver problemas. O uso dele assim como a conceito de modelo linear geral será em outro capítulo. Por enquanto me atenho a explicar seu uso para resolver um problema de regressão logística.
+
+```julia
+using GLM
+
+model = glm(@formula(y~x), df, Binomial(), ProbitLink())
+```
+
+`@formula` é a nossa macro que define a fórmula a ser usada pelo modelo. Aqui ela relaciona como `y` como sendo dependente de `x`.
+
+`df` é o nosso conjunto de treino, importante notar que os nomes da colunas devem ser os mesmo que passamos para `@formula`.
+
 ## Gradiente Ascendente
 
-Quando trabalhamos com regressão linear (INCLUIR AQUI LINK DEPOIS) nós usamos o algoritmo de descida do gradiente (do inglês, *gradient descent*), $\theta_j := \theta_j - \alpha\frac{\partial\ell(\theta)}{\theta}$ (tecnicamente usei a função de custo $J(\theta)$, mas usar o logaritmo da verossimilhança é equivalente e, para fins de generalização, mais correto), mas aqui queremos lidar com o gradiente ascendente (do inglês, *gradient ascent*).
+Quando trabalhamos com [regressão linear](regressão_linear.md) nós usamos o algoritmo de descida do gradiente (do inglês, *gradient descent*), $\theta_j := \theta_j - \alpha\frac{\partial\ell(\theta)}{\theta}$ (tecnicamente usei a função de custo $J(\theta)$, mas usar o logaritmo da verossimilhança é equivalente e, para fins de generalização, mais correto), mas aqui queremos lidar com o gradiente ascendente (do inglês, *gradient ascent*).
 
 Ao termos a função de verossimilhança $\mathcal{L}(\theta)$, ou o seu logaritmo $\ell(\theta)$, queremos maximizar a probabilidade do conjunto de parâmetros $\theta$ se "encaixar" ao conjunto de dados $X$. Dessa forma o nosso otimizador quer maximizar o resultado e não minimizar. Para o método do gradiente, isso é dado invertendo o sinal do fator de ajuste do parâmetro $\theta_j$.
 
@@ -135,7 +155,7 @@ $$
 \theta_j := \theta_j + \alpha\frac{\partial\ell(\theta)}{\theta}
 $$
 
-$\alpha$ ainda é a nossa taca de aprendizado, o quão o rápido ou devagar o nosso algoritmo converge para uma resposta. Aplicando o resultado da derivada da seção anterior temos então que a regra de atualização é:
+$\alpha$ ainda é a nossa taca de aprendizado, o quão o rápido ou devagar oz nosso algoritmo converge para uma resposta. Aplicando o resultado da derivada da seção anterior temos então que a regra de atualização é:
 
 $$
 \theta_j := \theta_j + \alpha \left( \sum_{i=1}^m(y^{(i)} - h_{\theta}(x^{(i)}))x_j^{(i)} \right) \space \text{, para cada j}
@@ -143,11 +163,59 @@ $$
 
 ### Implementação em Python
 
-Em construção.
+Acima demonstrei a descida de gradiente usando a descida de gradiente por lote, mas o normal é usarmos a descida estocástica ou alguma variação.
 
-### Implementação em Julia
+No [SciKit-Learn](https://scikit-learn.org/1.5/modules/generated/sklearn.linear_model.LogisticRegression.html) temos duas opções para solvers que usam o método de gradiente, o primeiro é `sag`, Stocastic Average Descent, uma versão do da descida estocástica em que o método de atualização é o mesmo, a cada observação alteramos nossos parâmetros, mas o valor final é determinado pela média do valor de cada iteração do algoritmo. O segundo é o `saga`, um algoritmo que eu ainda estou por entender como funciona...
 
-Em construção.
+Tanto o método `sag` quanto o `saga` são bons quando há uma grande número de observações, contudo somente o `saga` consegue suportar a regularização Elastic-Net, `sag` suporta somente $\ell_2$.
+
+> [!NOTE] Caso multinomial
+> Mais abaixo será explorado o caso multinomial, quando há mais de uma classe, já vale o comentário que ambos os métodos aqui descritos suportam esse caso.
+
+Quando os modelos são treinados podemos aplicá-los da mesma forma usando `model.fit(X, y)` para termos o modelo treinado, o SKLearn consegue identificar pelo quantidade de *labels* diferentes em `y` se a classificação é binária ou não. Por se tratar de um modelo linear podemos usar `model.coef_` e `model.intercept_` para poder acessar os valores dos nossos parâmetros já calibrados.
+
+#### SAG
+
+Podemos inicializar o método da seguinte forma
+
+```python
+from sklearn.linear_model import LogisticRegression
+
+model = LogisticRegression(
+    solver="sag",
+    penalty="l2",
+    C=1.0
+)
+```
+
+Os parâmetros acima definem um modelo padrão que usa `sag`, caso consulte a documentação do SciKit-Learn verão que há uma número de outros parâmetros que podemos mexer, mas a maioria não é tão relevante para esse caso.
+
+`penalty` controla qual a penalidade podemos usar, `l2` ou `None`.
+
+`C` é o inverso da força de regularização, isso é, quanto mais baixo maior será a regularização.
+
+#### SAGA
+
+Podemos inicializar o método da seguinte forma
+
+```python
+from sklearn.linear_model import LogisticRegression
+
+model = LogisticRegression(
+    solver="saga",
+    penalty="l2",
+    l1_ratio=None,
+    C=1.0
+)
+```
+
+Os parâmetros acima definem um modelo padrão que usa `sag`, caso consulte a documentação do SciKit-Learn verão que há uma número de outros parâmetros que podemos mexer, mas a maioria não é tão relevante para esse caso.
+
+`penalty` controla qual a penalidade podemos usar, `l2`, `l1`, `elasticnet` ou `None`.
+
+Quando usamos `penalty="elasticnet"` o parâmetro `l1_ratio` se torna relevante. Ele define o quanto que cada tipo de regularização influencia no resultado e tem valores no intervalo fechado {1, 0}. Caso usemos algum desses extremos do temos então ou uma regressão Ridge ou LASSO visto que o termo oposto será ignorado.
+
+`C` é o inverso da força de regularização, isso é, quanto mais baixo maior será a regularização.
 
 ## Método de Newton
 
@@ -195,39 +263,193 @@ Só que tal propriedade vem com um custo, conforme o número de dimensões de $\
 
 ### Implementação em Python
 
-### Implementação em Julia
+A biblioteca SciKit-Learn nos dá duas formas de usar o método de Newton, `newton-cg`, Newton Coordinate Gradient (NCG), onde combinamos o uso do método de newton de calcular o Hessiano, mas fazemos isso uma dimensão por vez assim diminuímos a exigência computacional do problema. O segundo é o `newton-cholesky`, que calcula uma matriz hessiana de todo o conjunto de dados para gerar o resultado.
+
+Ambos métodos permitem regularização $\ell_2$, porém somente NCG permite múltiplas classes de inferência, Newton-Cholesky só pode ser usado para problemas binários.
+
+Quando temos um grande volume de dados, NCG costuma ser masi rápido de Newton-Cholexky, contudo, caso tenhamos que o número de observações é muito maior que o número de *features*, Newton-Cholesky é uma boa escolha mesmo que acabe por depender de mais memória para ser calculado.
+
+### Newton Coordinate Gradient
+
+Podemos chamar o método como
+
+```python
+from sklearn.linear_model import LinearRegression
+
+model = LinearRegression(
+    solver="newton-cg",
+    penalty="l2",
+    C=1.0
+)
+```
+
+Os parâmetros acima definem um modelo padrão que usa `newton-cg`, caso consulte a documentação do SciKit-Learn verão que há uma número de outros parâmetros que podemos mexer, mas a maioria não é tão relevante para esse caso.
+
+`penalty` controla qual a penalidade podemos usar, `l2` ou `None`.
+
+`C` é o inverso da força de regularização, isso é, quanto mais baixo maior será a regularização.
+
+### Newton Cholesky
+
+Podemos chamar o método como
+
+```python
+from sklearn.linear_model import LinearRegression
+
+model = LinearRegression(
+    solver="newton-cholesky",
+    penalty="l2",
+    C=1.0
+)
+```
+
+Os parâmetros acima definem um modelo padrão que usa `newton-cholesky`, caso consulte a documentação do SciKit-Learn verão que há uma número de outros parâmetros que podemos mexer, mas a maioria não é tão relevante para esse caso.
+
+`penalty` controla qual a penalidade podemos usar, `l2` ou `None`.
+
+`C` é o inverso da força de regularização, isso é, quanto mais baixo maior será a regularização.
 
 ## Regressão multinomial (multiclasse)
 
 Até agora vimos o caso em que temos somentes duas classes para a classificação, um email é spam ou não, a pessoa está doente ou não, etc. Mas e se tivermos mais de duas classes para se classificar? Um *dataset* já clássico em aprendizado de máquina é o Iris, que reúne informações sobre o comprimento e largura de das sépalas e pétalas de três diferentes espécies de de flores íris, como construiríamos um algoritmo para, dado os nossos *inputs* (tamanho e largura das partes da flor) qual é a espécie dessa flor? Para esse caso usamos uma forma especial da regresão logística, a **regressão *softmax***, ou **regressão logística multinomial**.
 
-Suponhamos que temos um conjunto de dados $X$ com um certo de *features* e um *target* que pode assumir $K$ valores, temos então $K$ diferentes classes. Dado uma observação $x^(i)$ como podemos saber a que classe $k$ ele pertence? O método geral segue o mesmo, precisamos de uma função de custo para aplicarmos algum algoritmo de otimização como o método do gradiente ou método de Newton, para assim termos os $\theta$ ótimos para a classe. Aqui já temos a primeira diferença em relação a regressão logística binomial, no caso multinomial definimos uma matrix de parâmetros $\Theta$ de tamanho $\mathbb{R}^{K \times 1}$, onde cada linha é o vetor $\theta^{(k)}$ que contém os parâmetros para estimar a classe $k$ como se estivéssemos no caso binomial.
+Suponhamos que temos um conjunto de dados $X$ com um certo número de *features* e um *target* que pode assumir $K$ valores, temos então $K$ diferentes classes. Dado uma observação $x^{(i)}$ como podemos saber a que classe $k$ ele pertence? O método geral segue o mesmo, precisamos de uma função de custo para aplicarmos algum algoritmo de otimização como o método do gradiente ou método de Newton, para assim termos os $\theta$ ótimos para a classe. Aqui já temos a primeira diferença em relação a regressão logística binomial, no caso multinomial definimos uma matrix de parâmetros $\Theta$ de tamanho $\mathbb{R}^{K \times 1}$, onde cada linha é o vetor $\theta^{(k)}$ que contém os parâmetros para estimar a classe $k$ como se estivéssemos no caso binomial.
 
-Antes disso, contudo, temos que redefinir a nossa função a ser estimada. Enquanto no caso binomial utilizávamos a função sigmoide em sua forma normal $\frac{1}{1+\exp{-x}}$, aqui usamos uma versão modificada dela, a chamada **função softmax**.
+Antes disso, contudo, temos que redefinir a nossa função a ser estimada. Enquanto no caso binomial utilizávamos a função sigmoide em sua forma normal $\frac{1}{1+\exp(-x)}$, caso usássemos ela no caso multinomial, a nossa estimativa não ia se somar a 1 pois não estamos considerando a possibilidade de pertencer a qualquer uma das classes e sim aquela específica para qualq estamos computando os parâmetros $\theta$. Por exemplo, dado três classes, computamos os $\theta$ para cada uma delas e calculamos o valor da função sigmoide, teríamos três valores: 0,856, 0,16 e 0,003. É fácil notar que esses argumentos não somam 1, nesse caso é óbvio que a observação permitiria a classe 1, mas isso nem sempre é simples.
+
+Assim, temos que pensar em uma função que considere a probabilidade de todas as classes na hora de fazer a previsão, para isso usamos **função softmax**.
 
 $$
-\sigma(s(x))_k = \frac{\exp(s_k(\theta_k^T x^{(i)}))}{\sum_{j=1}^{K}\exp(s_j(\theta_j^T x^{(i)}))}
+s_k(x^{(i)}) = \frac{\exp(\theta_k^T x^{(i)})}{\sum_{j=1}^{K}\exp(\theta_j^T x^{(i)})}
 $$
 
-Onde $K$ é o número de classes; $s_k(x^{(i)})$ é o escore da classe $k$ para a observação $x^{(i)}$, que pode é definido como $s_k(x^{(i)}) = x^{(i)}\theta_k^T$; e $\sigma(s(x))_k$ é probabilidade estimada de que $x^{(i)}$ pertença a classe $k$ considerando os escores de cada uma das possíveis classes, também podemos denotar isso como $\hat{p}_k$. 
+Onde $K$ é o número de classes; $s_k(x^{(i)})$ é a probabilidade estimada de que $x^{(i)}$ pertença a classe $k$ considerando todas as outras possíveis classes, também podemos denotar isso como $\hat{p}_k$.
 
-No processo de estimação, calculamos a probabilidade de pertencer a cada classe $k$ e selecionamos a de maior como sendo a de maior valor.
+Agora ao calcular a probabilidade de pertencer a cada uma das classes, a soma das probabilides é 1.
+
+Definido isso, temos uma forma de gerar estimativas considerando todas as possíveis classes, agora, como podemos gerar os $\theta$ ótimos para cada uma dessas classes? A resposta em linhas curtas é simples, da mesma forma que fazemos no caso binomial, método de gradiente, método de Newton, etc. A versão longa da resposta requer de nós que formalizemos matematicamente a forma que ilustramos de forma intuitiva alguns conhecimentos.
+
+Dadas $K$ classes, podemos representar o nosso target como um vetor de tamanho $K$ onde cada posição é ocupada por 0 ou 1, em que 1 é o pertencimento a classe. Agrupando todo o conjunto de targets em um vetor $y$, temos que $y^{(i)}$ é um vetor com 1 na posição referente a a sua classe e o restante 0. Por exemplo, dado um conjunto sobre três tipos de vinho: rosé, branco e tinto. Definimos o $y^{(i)}$ de cada uma dessas classses da seguinte forma:
+
+$$
+\begin{align}
+rose &= (1, 0, 0) \newline
+branco &= (0, 1, 0) \newline
+tinto &= (0, 0, 1)
+\end{align}
+$$
+
+Além dissso definimos o conjunto de *features* $X$ como o vetor de tamanho $m$ ocupado por vetores linha de tamanho $n$, ou seja, cada linha é uma observação e cada coluna dessa linha é uma feature. Isso é útil pois assim temos que $\theta^T x^{(i)}=\hat{y}^{(i)}$.
+
+Juntando $X$ e $y$ temos que
+
+$$
+X =
+\left[
+\begin{array}{c}
+    \textemdash \space (x^{(1)})^T \space \textemdash \\
+    \textemdash \space (x^{(2)})^T \space \textemdash \\
+    \vdots \\
+    \textemdash \space (x^{(m)})^T \space \textemdash \\
+\end{array}
+\right],
+y=\left[
+\begin{matrix}
+    \textemdash \space (y^{(1)})^T \space \textemdash \\
+    \textemdash \space (y^{(2)})^T \space \textemdash \\
+    \vdots \\
+    \textemdash \space (y^{(m)})^T \space \textemdash \\
+\end{matrix}
+\right]
+$$
+
+De forma similar definimos o vetor de parâmetros $\Theta$ como
+
+$$
+\Theta = 
+\left[
+\begin{matrix}
+    \textemdash \space (\theta^{(1)})^T \space \textemdash \\
+    \textemdash \space (\theta^{(2)})^T \space \textemdash \\
+    \vdots \\
+    \textemdash \space (\theta^{(K)})^T \space \textemdash \\
+\end{matrix}
+\right]
+$$
+
+Dessa forma ainda temos que $\Theta_{k\times 1} x^{(i)}=\hat{y}^{(i)}$, só que agora $\hat{y}$ será um vetor de estimativas e não um escalar.
 
 Contudo, como podemos definir quais os melhores parâmetros para nossa equação? Como dito anteriormente, regressão logística, independente do tipo, não tem nenhuma solução fechaada, então temos de usar métodos como o do gradiente para chegar em uma solução. Para isso definimos então uma função e custo $J(\Theta)$ para melhor definir os parâmetros para cada $\theta$. Para isso usamos uma ferramenta que vem da teoria da informação, a **entropia cruzada**. (DEPOIS EU PENSO NO QUE ELA SIGNIFICA EXATAMENTE QUE EU NÃO ENTENDI)
 
 Definimos então a função de custo $J(\Theta)$ como
 
 $$
-J(\Theta) = -\sum_{i=1}^{m} \sum_{k=1}^{K}y_k^{(i)}\ln(\hat{p}_k^{(i)})
+J(\Theta) = -\sum_{i=1}^{m} \sum_{k=1}^{K}y_k^{(i)}\ln(s_k(x^{(i)}))
 $$
 
 A soma sobre $k$, onde $K$ é o número de classes possíves, é a nossa entropia cruzada.
 
-Podemos então derivar essa equação para chegar no fator de ajuste. Porém, caso se lembrem sobre o que foi comentado sobre modelos lineares, já sabem que essa função terá um formato específico mesmo sem cálculá-lo, $\sum_{i=1}^m(y^{(i)} - h_{\theta}(x^{(i)}))x_j^{(i)}$, assim pulamos por enquanto a derivação e podemos então já ter uma regra de ajuste para o nosso método de gradiente.
+Derivando temos,
 
 $$
-\theta_k := \theta_k + \alpha \left( \sum_{i=1}^m (\hat{p}_k^{(i)} y^{(i)})x^{(i)} \right)
+\nabla_{\theta_k}J(\Theta) = \sum_{i=1}^m(s(\theta^T_kx^{(i)})-y^{(i)})x^{(i)}
 $$
+
+importante notar que embora $\Theta$ seja uma matriz e $\theta_k$ um vetor linha, o resultado dessa expressão é um escalar. Dessa forma chegamos então na nossa regra de atualização para a descida de gradiente! Pulei a derivação dela por dois motivos: como dito anteriormente, toda modelo pertencente a classe de euqações lineares, quando derivada sua função de custo chegamos no mesmo resultado; segundo, a derivação é muito similar a feita antes sobre o caso binomial, como estamos calculando o valor em respeito a $\theta_k$ todos os termos da somatória se cancelam menos esse, o restante é análogo ao que foi feito antes.
+
+A regra de atualização pode então ser aplicada a cada $\theta$ do modelo da seguinte forma
+
+$$
+\theta_j := \theta_j + \alpha \left( \sum_{i=1}^m (\hat{p}_k^{(i)} y^{(i)})x^{(i)} \right)
+$$
+
+Note aqui que temos que aplicar a atualização sobre todos os parâmetros o modelo o que pode se tornar algo muito custos computacionalmente conforme o número de parâmetros e observações aumenta. Por causa disso, o uso da descida de gradiente estocástica, onde efetuamos uma atualização a cada observação e não percorrendo o conjunto de dados inteiro toda vez acaba sendo preferido.
+
+## Regularização
+
+Um problema que assombra a pesquisa em aprendizado de máquina é o sobreajuste (do inglês, *overfitting*), quando a nossa curva de regressão se ajusta demais ao conjunto de dados e não consegue generalizar o problema o suficiente para gerar boas previsões. Uma forma de adereçar esse problema é usando de fatores de **regularização**. Aplicamos a função de custo um fator a mais durante o treinamento que força a função a se ajustar aos dados da forma que queremos. Existem diversas formas de generalização e dependendo do *solver* que escolhemos para solucionar o problema alguns métodos de regularização podem não funcionar.
+
+Chamaremos de $r(\theta)$ como a função de regularização de $\theta$, adicionamos ela ao final da nossa função de de custo assim nós temos que $J(\theta) := J(\theta) + \lambda r(\theta)$, onde $\lambda$ define o quão intensa é a regularização, implementações como do SciKit-Learn usam o inverso de $\lambda$, normalmente denotado como $C$.
+ 
+### $\ell_1$
+
+A regularização $\ell_1$, as vezes chamada de regularização LASSO, adiciona a função de custo a norma dos parâmetros, isso é
+
+$$
+r(\theta) = \|\vec{\theta}\|_1
+$$
+
+Sendo $\vec{\theta}$ o vetor com todos os parâmetros da função.
+
+A regularização $\ell_1$ tem a propriedade de permitir que alguns parâmetos flutuem livremente enquanto diminuí força outros a zero, tal proprieda é muito útil por nos permitir ver quais são as features menos importantes do nosso modelo.
+
+Para entender o porque isso acontece nos útil dar um passo atrás no formato geral e voltarmos a restrição de uma função como normalmente é visto em aulas de cálculo:
+
+$$
+\min_{\theta}J(\theta) \space s.t. \space r(\theta) \le k
+$$
+
+Levando em conta somente o termo da restrição, o ponto mínimo é onde todos os parâmetros menos são iguais a zero, geograficamente, é uma das "pontas" do formato gerado pela restrição. Sendo assim, ao minimizarmos $J(\theta)$ o modelo tende a convergir para uma dessas pontas que é onde alguns valores dos parâmetros são iguais a zero.
+
+### $\ell_2$
+
+A regularização $\ell_2$, as vezes chamadade regularização Ridge ou regularização de Tikhnov, é similar a $\ell_1$ só que em vez de usarmos a norma do vetor usamos o quadrado desta.
+
+Diferente da regularização LASSO, os parâmetros regularizados por $\ell_2$ não chegam em zero, mas costumam orbitar perto de zero. Por causa da penalidade forte causada por usarmos o quadrado da norma os valroes dos coeficientes tendem a ser baixos, contudo, nenhum tende a ser iguala a zero.
+
+Como $r(\theta)=\|\theta\|_2$ nós temos que a restrição poderia encontrar um valor mínimo quando alguns coeficientes são zero, contudo a norma do vetor de parâmetros tal que $r(\theta) \le k$ é igual daqueles em que todos o coeficientes são diferentes de zero pois a fronteira onde $r(\theta) = k$ é "suave", geometricamente podemos dizer que forma uma hiperesfera (um círculo em 2D, esfera em 3D, etc).
+
+### Elastic-net
+
+Regularização Elastic-Net é a combinação de $\ell_1$ com $\ell_2$ ambos sozinhos tem alguns problemas, enquanto LASSO pode acabar por selecionar poucas features ao colocar muitas próximas de zero, Tikhnov pode distribuir a importância delas deminuindo a importância de algumas que deveriam ter maiores importância o que pode também criar problemas quando tratando outliers. Elastic-Net se propõe a resolver tais problemas usando os dois tipos de regularização. Temos então uma função $r$ na seguinte forma:
+
+$$
+r(\theta) = \frac{1 - \rho}{2}\|\theta\|_2 + \rho \|\theta\|_1
+$$
+
+Onde $\rho$ é a importância que se dá a cada um dos componentes, $\ell_1$ e $\ell_2$, no SciKit-Learn, o parâmetro `l1_ratio` é o nosso $\rho$.
+
+Embora o Elastic-Net combine ambos os modos de regularização, caso seja muito claro que um dos métodos sozinhos seja melhor (seleção de *features* ou correlação entre as *features*) é preferível usar ele sozinho ao Elastic-Net.
 
 ## Outras implementações
 
@@ -235,7 +457,71 @@ Implementações como a do SciKit Learn trazem *solvers* adicionais para a regre
 
 ### liblinear
 
-*Liblinear* ou *Library for Large Linear Classification* (em português, Biblioteca para Classificações Lineares Extensas) é originalmente uma biblioteca em C, e a implementação do SciKit Learn depende da versão em C++ para o seu funcionamento. O algoritmo implementado é um de descida coordenada (do inglês, *coordinate descent*) que é relativamente similar a descida de gradiente com uma peculiaridade
+*Liblinear* ou *Library for Large Linear Classification* (em português, Biblioteca para Classificações Lineares em Larga Escala) é originalmente uma biblioteca em C, e a implementação do SciKit Learn depende da versão em C++ para o seu funcionamento. O algoritmo implementado é um de descida coordenada (do inglês, *coordinate descent*), um tipo de algoritmo especialmente útil quando a função alvo não é diferenciável.
+
+A idea por trás da descida coordenada é que, dado um sistema com $N$ dimensões e uma função $f$ tal que $\mathbb{R}^N \longrightarrow \mathbb{R}^N$, é relativamente difícil achar o mínimo global dessa função. Porém, se formos tentar minimizar a função somente sobre uma única dimensão $n$, tal procedimento é relativamente simples. Avaliamos todos os possíveis valores da função $f$ em um ponto $x$ dado que todos os outros parâmetros são fixos e movemos para aquela direção, fazemos isso repetidamente até achar o mínimo.
+
+Podemos definir isso de maneira mais formal da seguinte forma. Dada o conjunto de variáveis de uma função qualquer e seu valor inicial ($x^i_n$), podemos achar os valores ótimos das variáveis ($x^k_n$) tal que minimizam a função se minimizarmos a $f$ uma dimensão, variável por vez, de forma que:
+
+$$
+\begin{align}
+x^k_1 &\in \arg\min_{x_1} f(x_1, x^i_2, x^i_3, \dots, x^i_n) \newline
+x^k_2 &\in \arg\min_{x_2} f(x_1^k, x_2, x^i_3, \dots, x^i_n) \newline
+x^k_3 &\in \arg\min_{x_3} f(x_1^k, x^k_2, x_3, \dots, x^i_n) \newline
+&\dots \newline
+x^k_n &\in \arg\min_{x_n} f(x_1^k, x^k_2, x^k_3, \dots, x_n)
+\end{align}
+$$
+
+O conjunto de pontos que chegarmos será então um ponto ótimo em que $f$ está em seu valor mínimo.
+
+#### Implementação em Python
+
+Como dito antes, a implementação no SciKit-Learn da descida coordenada depende da biblioteca em C *liblinear*, e é uma boa escolha quando o dataset é relativamente pequeno. O método permite regularização $\ell_1$ ou $\ell_2$. Não é possível fazer classificação multinomial verdadeira com o liblinear.
+
+Podemos inicializar o modelo como
+
+```python
+from sklearn.linear_model import LinearRegression
+
+model = LinearRegression(
+    solver="liblinear",
+    penalty="l2",
+    C=1.0
+)
+```
+
+Os parâmetros acima definem um modelo padrão que usa `liblinear`, caso consulte a documentação do SciKit-Learn verão que há uma número de outros parâmetros que podemos mexer, mas a maioria não é tão relevante para esse caso.
+
+`penalty` controla qual a penalidade podemos usar, `l1`, `l2` ou `None`.
+
+`C` é o inverso da força de regularização, isso é, quanto mais baixo maior será a regularização.
+
+### lbfgs
+
+Em construção.
+
+#### Implementação em Python
+
+O *solver* "Algoritmo de Memória Limitada de Broyden–Fletcher–Goldfarb–Shanno", lbfgs, é a implementação padrão para um problema de regressão logística no SciKit-Learn. Ele se apresenta um algoritmo robusto para a maioria dos casos que podemos encontrar
+
+Podemos inicializar o modelo como
+
+```python
+from sklearn.linear_model import LinearRegression
+
+model = LinearRegression(
+    solver="lbfgs",
+    penalty="l2",
+    C=1.0
+)
+```
+
+Os parâmetros acima definem um modelo padrão que usa `lbfgs`, caso consulte a documentação do SciKit-Learn verão que há uma número de outros parâmetros que podemos mexer, mas a maioria não é tão relevante para esse caso.
+
+`penalty` controla qual a penalidade podemos usar, `l1`, `l2` ou `None`.
+
+`C` é o inverso da força de regularização, isso é, quanto mais baixo maior será a regularização.
 
 ---
 
@@ -243,10 +529,10 @@ Implementações como a do SciKit Learn trazem *solvers* adicionais para a regre
 
 **Stanford Online** (2020). Locally Weighted & Logistic Regression | Stanford CS229: Machine Learning - Lecture 3 (Autumn 2018). https://www.youtube.com/watch?v=het9HFqo1TQ.
 
-https://stackoverflow.com/questions/38640109/logistic-regression-python-solvers-definitions
+**Yahya**. Logistic regression python solvers' definitions. https://stackoverflow.com/questions/38640109/logistic-regression-python-solvers-definitions.
 
 **Aurélien Géron**. Mãos à Obra: Aprendizado de Máquina com Sciki-Learn, Keras & TensorFlow. 2ª edição.
 
-https://youtu.be/9qFABxUQTrI?si=sd34dgLg-FdgcEDf
+**Kasper Green Larsen**. Machine Learning 12: Multinomial Logistic Regression and Softmax. https://youtu.be/9qFABxUQTrI?si=sd34dgLg-FdgcEDf.
 
-https://www.youtube.com/watch?v=TiiF3VG_ViU
+**Machine Learning TV**. Understanding Coodinate Descent. https://youtu.be/TiiF3VG_ViU?si=zWHxCfX8T4CDXihW.
