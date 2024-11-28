@@ -25,7 +25,7 @@ Tal problema se torna ainda maior conforme a fronteira de decisão, isso é, qua
 
 Um dos algoritmos mais comuns para problemas de classificação é a regressão logística, ela é baseada na curva logística inicialmente criada no século 19 pelo matemático belga Pierre François Verhulst como um modelo de crescimento populacional. Não é claro porque ele a chamou de "logística". Anos depois, já no século 20 se observou que ela pode ser usada como uma fronteira de decisão quando queremos estimar a probabilidade de uma classe (por isso chamamos de regressão inclusive, mesmo sendo usado em problema de classificação) e como modelo se tornou amplamente utilizada em uma série de problemas.
 
-![curva_logistica](../../_images/log_reg_std.jpg)
+![curva_logistica](../../_images/logit_std.png)
 *Figura 4: Curva logística padrão.*
 
 Ao longo deste capítulo usarei como dados de exemplo uma pesquisa que catalogou a presença de uma espécie em extinção de aranha lobo em praia pela costa do Japão, assim como o tamanho dos grão de areia na praia em questão. O gráfico abaixo nos mostra esses dados, sendo o eixo y a presença ou não da aranha (1 ou 0) e o no eixo x o tamanho dos grãos de areia.
@@ -49,13 +49,13 @@ O elemento da equação que controla a "forma" da equação, isso é, o quão pa
 
 Essas outras curvas podem se encaixar ao nosso conjunto de dados, queremos uma que melhro represente os nossos dados de forma que, ao passarmos uma observação, a função nos retorna a probabilidade da observação pertencer a classe 1.
 
-![mudancas_com_param](../../_images/changes_log_reg.jpg)
+![mudancas_com_param](../../_images/logit_mod.png)
 *Figura 6: Como parâmetros alteram o formato da curva.*
 
 Podemos então ter um conjunto de parâmetros $\theta$ e dados $x$, ambos representados como vetores, e colocá-los como nosso expoente. Dessa forma podemos construir um número de curvas epara ter aquela que melhor se adequa ao conjunto de dados que temos.
 
 $$
-h_{\theta}(x) = \frac{1}{1+e^{\theta^Tx}}
+h_{\theta}(x) = \frac{1}{1+e^{-\theta^Tx}}
 $$
 
 Em outros problemas como regressão linear há um fórmula que nos dá o valor ideal, porém, com regressão logística não há nenhum algoritmo que nos dá os valores ideias. Existem casos especiais onde se sabe como achar uma solução analítica para o problema de otimização, mas de forma geral ainda não se descobriu um formato ideal de curva dado um conjunto de pontos.
@@ -133,7 +133,7 @@ Nas seções abaixo vamos explorar o uso desses algoritmos para poder resolver u
 
 Mais a frente veremos como a biblioteca SciKit-Learn nos permite o uso de diversos *solvers* para resolver um problema de regressão logística, Julia, por sua vez, embora tenha bibliotecas implementadas com todos esses métodos, a principal biblioteca para resolver problemas de modelos lineares não funciona dessa forma, permitindo o uso de diversos *solvers*.
 
-A [GLM.jl](https://juliastats.org/GLM.jl/stable/) se baseia no conceito de modelos regulares generalizados e utiliza uma função única para otimizá-los o que importa aqui é o tipo de distribuição e "*link*" que se passa paar esse método. O Iteratively Reweighted Least Squares (IRLS) usado pelo GLM.jl consegue se adaptar a todos os modelos lineares e é o usado pela implementação para resolver problemas. O uso dele assim como a conceito de modelo linear geral será em outro capítulo. Por enquanto me atenho a explicar seu uso para resolver um problema de regressão logística.
+A [GLM.jl](https://juliastats.org/GLM.jl/stable/) se baseia no conceito de modelos regulares generalizados e utiliza uma função única para otimizá-los o que importa aqui é o tipo de distribuição e "*link*" que se passa para esse método. O Iteratively Reweighted Least Squares (IRLS) usado pelo GLM.jl consegue se adaptar a todos os modelos lineares e é o usado pela implementação para resolver problemas. O uso dele assim como a conceito de modelo linear geral será em outro capítulo. Por enquanto me atenho a explicar seu uso para resolver um problema de regressão logística.
 
 ```julia
 using GLM
@@ -144,6 +144,19 @@ model = glm(@formula(y~x), df, Binomial(), ProbitLink())
 `@formula` é a nossa macro que define a fórmula a ser usada pelo modelo. Aqui ela relaciona como `y` como sendo dependente de `x`.
 
 `df` é o nosso conjunto de treino, importante notar que os nomes da colunas devem ser os mesmo que passamos para `@formula`.
+
+> [!NOTE] Estimando a presença de aranhas nas praias do Japão
+> Podemos rodar a nossa a nossa regressão logística sobre o nosso conjunto de dados e obtemos o seguinte resultado
+> ```julia
+> julia> model = glm(@formula(Y~X), data, Binomial(), ProbitLink())
+> StatsModels.TableRegressionModel{GeneralizedLinearModel{GLM.GlmResp{Vector{Float64}, Binomial{Float64}, ProbitLink}, GLM.DensePredChol{Float64, LinearAlgebra.CholeskyPivoted{Float64, Matrix{Float64}, Vector{Int64}}}}, Matrix{Float64}} Y ~ 1 + X Coefficients: 
+> ───────────────────────────────────────────────────────────────────────
+>              Coef.  Std. Error  z  Pr(>|z|) Lower 95% Upper 95% 
+>──────────────────────────────────────────────────────────────────────── (Intercept) -1.04141 0.799553 -1.30  0.1927   -2.6085   0.525687
+> X            3.19119 1.7123    1.86  0.0624   -0.16485  6.54724 ────────────────────────────────────────────────────────────────────────
+> ```
+> Podemos então criar uma curva que tem o seguinte formato
+> !["curva-de-regressao-wolfspider"](../../_images/logit_wolfspider.png)
 
 ## Gradiente Ascendente
 
@@ -223,7 +236,7 @@ Na seção anterior vimos o uso do método do gradiente para resolver um problem
 
 Podemos então pensar nele graficamente da seguinte forma
 
-INSERIR GRÁFICO DA OTIMIZAÇÃO POR MÉTODO DE NEWTON
+!["metodo-de-newton"](../../_images/quasi-newton-method.jpg)
 
 Vamos formalizar esse processo que descrevi acima.
 
@@ -251,7 +264,7 @@ $$
 \theta := \theta - \nabla^2\ell(\theta)^{-1} \nabla\ell(\theta)
 $$
 
-Onde $\nabla$ é a derivação de um vetor, ou matriz (INSERIR LINK DEPOIS). A derivada de segunda ordem é um caso especial aqui, chamada de **matriz Hessiana** ($H$). Ela tem a forma de $\mathbb{R}^{n+1\times n+1}$ e seus elementos são dados por:
+Onde $\nabla$ é a derivação de um vetor ou matriz, lemos como "[nabla](../../matematica/alg_linear/matrizes.md#Notação $\nabla$ (nabla) para derivadas)". A derivada de segunda ordem é um caso especial aqui, chamada de **matriz Hessiana** ($H$). Ela tem a forma de $\mathbb{R}^{n+1\times n+1}$ e seus elementos são dados por:
 
 $$
 H_{ij} = \frac{\partial^2\ell(\theta)}{\partial\theta_i \partial\theta_j}
@@ -379,7 +392,7 @@ $$
 
 Dessa forma ainda temos que $\Theta_{k\times 1} x^{(i)}=\hat{y}^{(i)}$, só que agora $\hat{y}$ será um vetor de estimativas e não um escalar.
 
-Contudo, como podemos definir quais os melhores parâmetros para nossa equação? Como dito anteriormente, regressão logística, independente do tipo, não tem nenhuma solução fechaada, então temos de usar métodos como o do gradiente para chegar em uma solução. Para isso definimos então uma função e custo $J(\Theta)$ para melhor definir os parâmetros para cada $\theta$. Para isso usamos uma ferramenta que vem da teoria da informação, a **entropia cruzada**. (DEPOIS EU PENSO NO QUE ELA SIGNIFICA EXATAMENTE QUE EU NÃO ENTENDI)
+Contudo, como podemos definir quais os melhores parâmetros para nossa equação? Como dito anteriormente, regressão logística, independente do tipo, não tem nenhuma solução fechaada, então temos de usar métodos como o do gradiente para chegar em uma solução. Para isso definimos então uma função e custo $J(\Theta)$ para melhor definir os parâmetros para cada $\theta$. Para isso usamos uma ferramenta que vem da teoria da informação, a **entropia cruzada** que nos permite calcular a diferença entre duas distribuições de probabilidade.
 
 Definimos então a função de custo $J(\Theta)$ como
 
@@ -532,6 +545,8 @@ Os parâmetros acima definem um modelo padrão que usa `lbfgs`, caso consulte a 
 **Yahya**. Logistic regression python solvers' definitions. https://stackoverflow.com/questions/38640109/logistic-regression-python-solvers-definitions.
 
 **Aurélien Géron**. Mãos à Obra: Aprendizado de Máquina com Sciki-Learn, Keras & TensorFlow. 2ª edição.
+
+**Aurélien Géron**. A Short Introduction to Entropy, Cross-Entropy and KL-Divergence. https://youtu.be/ErfnhcEV1O8?si=3vdRyGLzamoaRLrb.
 
 **Kasper Green Larsen**. Machine Learning 12: Multinomial Logistic Regression and Softmax. https://youtu.be/9qFABxUQTrI?si=sd34dgLg-FdgcEDf.
 
