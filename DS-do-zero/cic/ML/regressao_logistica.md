@@ -149,14 +149,69 @@ model = glm(@formula(y~x), df, Binomial(), ProbitLink())
 > Podemos rodar a nossa a nossa regressão logística sobre o nosso conjunto de dados e obtemos o seguinte resultado
 > ```julia
 > julia> model = glm(@formula(Y~X), data, Binomial(), ProbitLink())
-> StatsModels.TableRegressionModel{GeneralizedLinearModel{GLM.GlmResp{Vector{Float64}, Binomial{Float64}, ProbitLink}, GLM.DensePredChol{Float64, LinearAlgebra.CholeskyPivoted{Float64, Matrix{Float64}, Vector{Int64}}}}, Matrix{Float64}} Y ~ 1 + X Coefficients: 
+> StatsModels.TableRegressionModel{GeneralizedLinearModel{GLM.GlmResp{Vector{Float64}, Binomial{Float64}, LogitLink}, GLM.DensePredChol{Float64, LinearAlgebra.CholeskyPivoted{Float64, Matrix{Float64}, Vector{Int64}}}}, Matrix{Float64}} 
+> Y ~ 1 + X 
+> Coefficients: 
 > ───────────────────────────────────────────────────────────────────────
->              Coef.  Std. Error  z  Pr(>|z|) Lower 95% Upper 95% 
->──────────────────────────────────────────────────────────────────────── (Intercept) -1.04141 0.799553 -1.30  0.1927   -2.6085   0.525687
-> X            3.19119 1.7123    1.86  0.0624   -0.16485  6.54724 ────────────────────────────────────────────────────────────────────────
+> .               Coef.  Std. Error     z  Pr(>|z|)  Lower 95%  Upper 95% 
+>────────────────────────────────────────────────────────────────────────
+> (Intercept) -1.71248      1.37512 -1.25    0.2130  -4.40776    0.982708
+> X            5.25652      3.0544   1.72    0.0853  -0.729993  11.243 ────────────────────────────────────────────────────────────────────────
 > ```
 > Podemos então criar uma curva que tem o seguinte formato
-> !["curva-de-regressao-wolfspider"](../../_images/logit_wolfspider.png)
+> !["curva-de-regressao-wolfspider"](../../_images/logit_wolfspider.jpeg)
+
+## Regularização
+
+Um problema que assombra a pesquisa em aprendizado de máquina é o sobreajuste (do inglês, *overfitting*), quando a nossa curva de regressão se ajusta demais ao conjunto de dados e não consegue generalizar o problema o suficiente para gerar boas previsões. Uma forma de resolver esse problema é usando de fatores de **regularização**. Aplicamos a função de custo um fator a mais durante o treinamento que força a função a se ajustar aos dados da forma que queremos. Existem diversas formas de generalização e dependendo do *solver* que escolhemos para solucionar o problema alguns métodos de regularização podem não funcionar.
+
+Chamaremos de $r(\theta)$ a função de regularização de $\theta$, adicionamos ela ao final da nossa função de de custo assim nós temos que $J(\theta) := J(\theta) + \lambda r(\theta)$, onde $\lambda$ define o quão intensa é a regularização, implementações como do SciKit-Learn usam o inverso de $\lambda$, normalmente denotado como $C$.
+ 
+### $\ell_1$
+
+A regularização $\ell_1$, as vezes chamada de regularização LASSO, adiciona a função de custo a norma dos parâmetros, isso é
+
+$$
+r(\theta) = \|\vec{\theta}\|_1 = \sum_{j=0}^n |\theta_j|
+$$
+
+Sendo $\vec{\theta}$ o vetor com todos os parâmetros da função.
+
+A regularização $\ell_1$ tem a propriedade de permitir que alguns parâmetros flutuem livremente enquanto força outros à zero, tal propriedade é muito útil por nos permitir ver quais são as *features* menos importantes do nosso modelo, muitas vezes esse processe é chamado de **seleção de *features*** (*feature selection*).
+
+Para entender o porque isso acontece, nos é útil dar um passo atrás no formato geral e voltarmos a pensar em restrição de uma função como nos é mostrado em aulas de cálculo:
+
+$$
+\min_{\theta}J(\theta) \space s.t. \space r(\theta) \le k
+$$
+
+$k$ é uma constante arbitrária, para fins do nosso exemplo podemos ignorá-la. O gráfico abaixo mostra uma função de custo, no meio, $\hat{\beta}$, temos o ponto ótimo e as elipses ao redor se chamam curvas de nível, em cada uma delas o custo é constante em qualquer ponto desta. Queremos então chegar o mais perto do centro dessas elipses, só que temos um fator que restringe o quão perto podemos chegar, este é o quadrado azulado, $r(\theta) \le k$. A regularização impõe uma restrição sobre os parâmetros, geometricamente, estes tem que estar em algum lugar dentro da área delimitada pela restrição.
+
+![curvas-de-nivel-lasso](../../_images/level_curves_lasso.png)
+
+Qual é então o ponto mais perto do ponto ótimo que podemos chegar dada a nossa restrição? Como a área definida pela regularização LASSO é "pontuda", é muito mais provável que o ponto mais perto de $\hat{\beta}$ seja uma das pontas, e justamente nesses pontos alguns dos valores dos parâmetros tendem a cair a zero.
+
+### $\ell_2$
+
+A regularização $\ell_2$, as vezes chamada de regularização Ridge ou regularização de Tikhnov, é similar a $\ell_1$ só que em vez de usarmos a norma do vetor usamos o quadrado desta.
+
+$$
+r(\theta) = \|\vec{\theta}\|_2^2 = \sum_{j=0}^n |\theta_j|^2
+$$
+
+Diferente da regularização LASSO, os parâmetros regularizados por $\ell_2$ não chegam em zero, mas costumam orbitar perto de zero. Por causa da penalidade forte causada por usarmos o quadrado da norma os valores dos coeficientes tendem a ser baixos, contudo, nenhum tende a ser igual a zero.
+
+### Elastic-net
+
+Regularização Elastic-Net é a combinação de $\ell_1$ com $\ell_2$ ambos sozinhos tem alguns problemas, enquanto LASSO pode acabar por selecionar poucas features ao colocar muitas próximas de zero, Tikhnov pode distribuir a importância delas deminuindo a importância de algumas que deveriam ter maiores importância o que pode também criar problemas quando tratando outliers. Elastic-Net se propõe a resolver tais problemas usando os dois tipos de regularização. Temos então uma função $r$ na seguinte forma:
+
+$$
+r(\theta) = \frac{1 - \rho}{2}\|\theta\|_2 + \rho \|\theta\|_1
+$$
+
+Onde $\rho$ é a importância que se dá a cada um dos componentes, $\ell_1$ e $\ell_2$, no SciKit-Learn, o parâmetro `l1_ratio` é o nosso $\rho$.
+
+Embora o Elastic-Net combine ambos os modos de regularização, caso seja muito claro que um dos métodos sozinhos seja melhor (seleção de *features* ou correlação entre as *features*) é preferível usar ele sozinho ao Elastic-Net.
 
 ## Gradiente Ascendente
 
@@ -229,6 +284,13 @@ Os parâmetros acima definem um modelo padrão que usa `sag`, caso consulte a do
 Quando usamos `penalty="elasticnet"` o parâmetro `l1_ratio` se torna relevante. Ele define o quanto que cada tipo de regularização influencia no resultado e tem valores no intervalo fechado {1, 0}. Caso usemos algum desses extremos do temos então ou uma regressão Ridge ou LASSO visto que o termo oposto será ignorado.
 
 `C` é o inverso da força de regularização, isso é, quanto mais baixo maior será a regularização.
+
+> [!NOTE] Aplicação no dataset da aranha lobo
+> Aplicando o snippet acima e em seguida dando *fit* no modelo com `model.fit(X, y)` temos que o valor do nosso parâmetro é **0,8307551** e o nosso intercepto é **0,32178694**. Valores muito diferentes do que obtivemos com o GLM.jl!
+> Nenhum desses está errado, lembremos que o SciKit-Learn, por padrão aplica regularização Ridge que tende a aproximar os valores de 0, passando o parâmetro `penalty=None` temos os novos valores de  
+> Parâmetro: **5,2508831**  
+> Intercepto: **-1,17002383**  
+> Muito mais próximo do que vimos com o GLM.jl!
 
 ## Método de Newton
 
@@ -418,52 +480,6 @@ $$
 
 Note aqui que temos que aplicar a atualização sobre todos os parâmetros o modelo o que pode se tornar algo muito custos computacionalmente conforme o número de parâmetros e observações aumenta. Por causa disso, o uso da descida de gradiente estocástica, onde efetuamos uma atualização a cada observação e não percorrendo o conjunto de dados inteiro toda vez acaba sendo preferido.
 
-## Regularização
-
-Um problema que assombra a pesquisa em aprendizado de máquina é o sobreajuste (do inglês, *overfitting*), quando a nossa curva de regressão se ajusta demais ao conjunto de dados e não consegue generalizar o problema o suficiente para gerar boas previsões. Uma forma de adereçar esse problema é usando de fatores de **regularização**. Aplicamos a função de custo um fator a mais durante o treinamento que força a função a se ajustar aos dados da forma que queremos. Existem diversas formas de generalização e dependendo do *solver* que escolhemos para solucionar o problema alguns métodos de regularização podem não funcionar.
-
-Chamaremos de $r(\theta)$ como a função de regularização de $\theta$, adicionamos ela ao final da nossa função de de custo assim nós temos que $J(\theta) := J(\theta) + \lambda r(\theta)$, onde $\lambda$ define o quão intensa é a regularização, implementações como do SciKit-Learn usam o inverso de $\lambda$, normalmente denotado como $C$.
- 
-### $\ell_1$
-
-A regularização $\ell_1$, as vezes chamada de regularização LASSO, adiciona a função de custo a norma dos parâmetros, isso é
-
-$$
-r(\theta) = \|\vec{\theta}\|_1
-$$
-
-Sendo $\vec{\theta}$ o vetor com todos os parâmetros da função.
-
-A regularização $\ell_1$ tem a propriedade de permitir que alguns parâmetos flutuem livremente enquanto diminuí força outros a zero, tal proprieda é muito útil por nos permitir ver quais são as features menos importantes do nosso modelo.
-
-Para entender o porque isso acontece nos útil dar um passo atrás no formato geral e voltarmos a restrição de uma função como normalmente é visto em aulas de cálculo:
-
-$$
-\min_{\theta}J(\theta) \space s.t. \space r(\theta) \le k
-$$
-
-Levando em conta somente o termo da restrição, o ponto mínimo é onde todos os parâmetros menos são iguais a zero, geograficamente, é uma das "pontas" do formato gerado pela restrição. Sendo assim, ao minimizarmos $J(\theta)$ o modelo tende a convergir para uma dessas pontas que é onde alguns valores dos parâmetros são iguais a zero.
-
-### $\ell_2$
-
-A regularização $\ell_2$, as vezes chamadade regularização Ridge ou regularização de Tikhnov, é similar a $\ell_1$ só que em vez de usarmos a norma do vetor usamos o quadrado desta.
-
-Diferente da regularização LASSO, os parâmetros regularizados por $\ell_2$ não chegam em zero, mas costumam orbitar perto de zero. Por causa da penalidade forte causada por usarmos o quadrado da norma os valroes dos coeficientes tendem a ser baixos, contudo, nenhum tende a ser iguala a zero.
-
-Como $r(\theta)=\|\theta\|_2$ nós temos que a restrição poderia encontrar um valor mínimo quando alguns coeficientes são zero, contudo a norma do vetor de parâmetros tal que $r(\theta) \le k$ é igual daqueles em que todos o coeficientes são diferentes de zero pois a fronteira onde $r(\theta) = k$ é "suave", geometricamente podemos dizer que forma uma hiperesfera (um círculo em 2D, esfera em 3D, etc).
-
-### Elastic-net
-
-Regularização Elastic-Net é a combinação de $\ell_1$ com $\ell_2$ ambos sozinhos tem alguns problemas, enquanto LASSO pode acabar por selecionar poucas features ao colocar muitas próximas de zero, Tikhnov pode distribuir a importância delas deminuindo a importância de algumas que deveriam ter maiores importância o que pode também criar problemas quando tratando outliers. Elastic-Net se propõe a resolver tais problemas usando os dois tipos de regularização. Temos então uma função $r$ na seguinte forma:
-
-$$
-r(\theta) = \frac{1 - \rho}{2}\|\theta\|_2 + \rho \|\theta\|_1
-$$
-
-Onde $\rho$ é a importância que se dá a cada um dos componentes, $\ell_1$ e $\ell_2$, no SciKit-Learn, o parâmetro `l1_ratio` é o nosso $\rho$.
-
-Embora o Elastic-Net combine ambos os modos de regularização, caso seja muito claro que um dos métodos sozinhos seja melhor (seleção de *features* ou correlação entre as *features*) é preferível usar ele sozinho ao Elastic-Net.
-
 ## Outras implementações
 
 Implementações como a do SciKit Learn trazem *solvers* adicionais para a regressão logística. Ao longo dessa seção vamos disutir esses dois outros métodos, o *liblinear* e o "Algoritmo de Memória Limitada de Broyden–Fletcher–Goldfarb–Shanno", ou *lbfgs*. Outros algoritmos implementados são baseados em descida de gradiente ou método de newton apresentado anteriormente.
@@ -551,3 +567,7 @@ Os parâmetros acima definem um modelo padrão que usa `lbfgs`, caso consulte a 
 **Kasper Green Larsen**. Machine Learning 12: Multinomial Logistic Regression and Softmax. https://youtu.be/9qFABxUQTrI?si=sd34dgLg-FdgcEDf.
 
 **Machine Learning TV**. Understanding Coodinate Descent. https://youtu.be/TiiF3VG_ViU?si=zWHxCfX8T4CDXihW.
+
+https://www.youtube.com/watch?v=jbwSCwoT51M
+
+https://datascience.stackexchange.com/questions/85220/how-lasso-regression-helps-to-shrinks-the-coefficient-to-zero-and-why-ridge-regr
