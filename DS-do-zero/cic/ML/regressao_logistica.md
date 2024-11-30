@@ -1,8 +1,8 @@
 # Regressão Logística
 
-Vamos supor que você trabalha em um laboratório médico e se quer criar uma forma de identificar se nódulos são câncer ou não. Para isso se pensa em medir eles e tentar através de seu tamanho alimentar algum algoritmo que pudesse determinar a probabilidade de ser maligno ou não. Uma primeira tentativa pode ser de tentar usar um método de regressão como a regressão linear ao conjunto de dados, gerar um curva de regressão sobre os dados e avaliar o resultado, se for maior que 0.5, ou qualquer outro valor limite, definir como verdadeiro, caso contrário não.
+Você trabalha em laboratório e foi encarregado de criar um modelo que ajude pesquisadores e descobrir se dado o tamanho de nódulo na pele, aquilo pode ser, ou não um câncer. Queremos então estimar a probabilidade do nódulo ser um câncer, 0% ou 100%. Uma primeira tentativa pode ser de tentar usar um método de regressão, como a regressão linear, ao conjunto de dados, gerar um curva de regressão sobre os dados e avaliar o resultado, se for maior que 0.5, ou qualquer outro valor limite, definir como verdadeiro, caso contrário não.
 
-Vamos tentar ilustrar isso com um exemplo. Digamos que tenhamos o seguinte conjunto de dados sobre o tamanho de nódulos, no eixo x temos o tamanho deles e no eixo Y definimos um valor binário como o nosso target, se o nódulo é maligno ou não, 0 ou 1.
+Vamos tentar ilustrar isso com um exemplo. Digamos que tenhamos o seguinte conjunto de dados sobre o tamanho de nódulos, no eixo x temos o tamanho deles e no eixo Y definimos um valor binário como o nosso *target*, se o nódulo é maligno ou não, 0 ou 1.
 
 !["distribuicao-de-nodulos"](../../_images/reg_logit_exemplo.jpg)
 *Figura 1: Conjunto de dados de exemplo.*
@@ -14,9 +14,9 @@ Rodando uma regressão temos uma curva com o seguinte formato.
 ![dados_com_reg_linear](../../_images/reg_logit_sem_outlier.jpg)
 *Figura 2: Regressão linear sobre o nosso conjunto de exemplo.*
 
-Podemos avaliar então, se o valor da regressão for maior que 0,5 clasificamos o ponto como 1, que é provavél que seja maligno, caso contrário 0, benigno. Embora tal solução pareça eficiente ela não se sustenta caso estressemos um pouco montando um conjunto de dados um pouco diferente.
+Podemos avaliar então que se o valor da regressão for maior que 0,5 clasificamos o ponto como 1, maligno, caso contrário 0, benigno. Embora tal solução pareça eficiente ela não se sustenta caso estressemos o modelo adicionando mais pontos ao conjunto de dados.
 
-No novo conjunto o ponto mais a esquerda é 1, só que seu valor é grande demais e a regressão linear vai acabar capturando o efeito desse ponto muito maior que os outros e mudando os parâmetros e formando a curva que segue. E, por consequência outros valores que claramente deveriam ser marcados como 1 acaba sendo mal classificados como 0.
+No novo conjunto, o ponto mais a esquerda é 1, só que, como seu tamanho é desproporcionalmente maior que os outros, a regressão acaba por capturar a influência deste e perdemos muito da precisão no nosso modelo. Vários valores que deveriam ser classificados como 1 em um conjunto de dados "comportados" aqui são erroneamente classificados como 0.
 
 ![conjunto_dados_com_outlier](../../_images/reg_logit_com_outlier.jpg)
 *Figura 3: Regressão linear sobre o conjunto com um outlier.*
@@ -31,36 +31,36 @@ Um dos algoritmos mais comuns para problemas de classificação é a regressão 
 Ao longo deste capítulo usarei como dados de exemplo uma pesquisa que catalogou a presença de uma espécie em extinção de aranha lobo em praia pela costa do Japão, assim como o tamanho dos grão de areia na praia em questão. O gráfico abaixo nos mostra esses dados, sendo o eixo y a presença ou não da aranha (1 ou 0) e o no eixo x o tamanho dos grãos de areia.
 
 ![aranha-lobo](../../_images/wolfspider.jpg)
-*Figura 5: Tamanho dos grão de areia das praia em que foi encontrada uma aranha lobo.*
+*Figura 5: Tamanho dos grãos de areia das praia em que foi encontrada uma aranha lobo.*
 
 ## Definição formal
 
-Podemos definir a regressão logística como um algoritmo usado para classificação, ele pode ser usado tanto em problemas onde há múltiplas classes, por exemplo dada a foto de uma fruta identificar se é uma maça, banana, pera, etc; quanto binárias, 0 ou 1. Por enquanto vamos focar em problemas de classificação binária. Dizemos que o valor 1 é a presença daquilo que estamos estimando e 0 a não presença, um tumor ser maligno ou não, um email, ser spam ou não, etc.
+Podemos definir a regressão logística como um algoritmo usado para classificação, ele pode ser usado tanto em problemas onde há múltiplas classes; por exemplo, dada a foto de uma fruta identificar se é uma maça, banana, pera, etc; quanto binárias, 0 ou 1. Por enquanto vamos focar em problemas de classificação binária. Dizemos que o valor 1 é a presença daquilo que estamos estimando e 0 a não presença, um tumor ser maligno ou não; um email, ser spam ou não, etc.
 
-Como no nosso caso estamos focando em valores binários não precisamos que nossa função atinja qualquer que não esteja dentro do intervalo $\{0,1\}$, aqui entra a função logística. Sua imagem é definida dentro do intervalo fechado $\{0,1\}$, a equação para sua construção é a que segue.
+Como no nosso caso estamos focando em valores binários não precisamos que nossa função atinja qualquer valor que não esteja dentro do intervalo $\{0,1\}$, aqui entra a função logística. Sua imagem é definida dentro do intervalo fechado $\{0,1\}$, a equação para sua construção é a que segue.
 
 $$
 y = \frac{1}{1+e^{-x}}
 $$
 
-Contudo, essa equação é "fechada", não aceita parâmetros se não o próprio $x$, logo como podemos alterar ela para se encaixar no nosso modelo.
+Contudo, essa equação é "fechada", não aceita parâmetros se não o próprio $x$, logo como podemos alterar ela para se encaixar no nosso modelo?
 
 O elemento da equação que controla a "forma" da equação, isso é, o quão para esquerda ou direita a curva está deslocada, ou o quão inclinada é a curva é o elemento $e^{-x}$, mais especificamente o seu expoente $-x$, logo alterando ele podemos criar outras curvas.
-
-Essas outras curvas podem se encaixar ao nosso conjunto de dados, queremos uma que melhro represente os nossos dados de forma que, ao passarmos uma observação, a função nos retorna a probabilidade da observação pertencer a classe 1.
 
 ![mudancas_com_param](../../_images/logit_mod.png)
 *Figura 6: Como parâmetros alteram o formato da curva.*
 
-Podemos então ter um conjunto de parâmetros $\theta$ e dados $x$, ambos representados como vetores, e colocá-los como nosso expoente. Dessa forma podemos construir um número de curvas epara ter aquela que melhor se adequa ao conjunto de dados que temos.
+Essas outras curvas podem se encaixar ao nosso conjunto de dados, o valor que a curva assume em um certo ponto será a nossa probabilidade de pertencer a classe 1. Mexendo no parâmetros podemos então criar diversas curvas que se encaixem na nossa distribuição de dados dentro aqueles que são 0 ou 1. Nosso objetivo é descobrir quais os melhores parâmetros que constroem a curva logística que melhor se encaixa nos dados.
+
+Definimos então um conjunto de parâmetros $\theta$ e dados $x$, ambos representados como vetores, que serão o nosso novo expoente na função logística. Como $\theta^Tx$ é um escalar, a função segue retornando valores dentro do intervalo $\{0, 1\}$.
 
 $$
 h_{\theta}(x) = \frac{1}{1+e^{-\theta^Tx}}
 $$
 
-Em outros problemas como regressão linear há um fórmula que nos dá o valor ideal, porém, com regressão logística não há nenhum algoritmo que nos dá os valores ideias. Existem casos especiais onde se sabe como achar uma solução analítica para o problema de otimização, mas de forma geral ainda não se descobriu um formato ideal de curva dado um conjunto de pontos.
+Em outros problemas como regressão linear há um fórmula que nos dá o valor ideal, porém, com regressão logística não há nenhum algoritmo que nos dá os valores ideias dos parâmetros $\theta$. Existem casos especiais onde se sabe como achar uma solução analítica para o problema de otimização, mas de forma geral ainda não se descobriu um formato ideal de curva dado um conjunto de pontos.
 
-Nos resta então a pergunta, de como podemos saber achar esse conjunto de $\theta$s dado que não temos uma solução analítica definida para o problema. Para isso temos que usar algoritmos de otimização, assim como pode ser feito com [regressão linear e descida de gradiente](regressao_linear.md#metodo-de-gradiente) (na verdade podemos usar o mesmo [método de gradiente](../../matematica/otimizadores/metodo_gradiente.md) e vamos explorar seu uso mais a frente). Contudo, antes de pularmos para os métodos vamos ver como podemos ter certeza de que há uma função que podemos otimizar e que podemos usar como função de custo para um algoritmo como descida de gradiente.
+Nos resta então a pergunta, como achar um conjunto de $\theta$s dado que não temos uma solução analítica definida para o problema? Nesse caso temos que usar algoritmos de otimização, assim como pode ser feito com [regressão linear e descida de gradiente](regressao_linear.md#metodo-de-gradiente) (na verdade podemos usar o mesmo [método de gradiente](../../matematica/otimizadores/metodo_gradiente.md) e vamos explorar seu uso mais a frente). Contudo, antes de pularmos para os métodos vamos ver como podemos ter certeza de que há uma função que podemos otimizar e que podemos usar como função de custo para um algoritmo como descida de gradiente.
 
 Vamos definir a função de probabilidade para cada uma das ocorrências da variável resposta $y$,
 
@@ -93,7 +93,7 @@ $$
 \end{align}
 $$
 
-Derivando o logaritmo da verossimilhança chegamos na equação abaixo,
+Derivando o logaritmo da verossimilhança (usamos o logaritmo desta para facilitar contas futuras, seu uso não impacta nos resultados) chegamos na equação abaixo,
 
 $$
 \frac{\partial \ell(\theta)}{\partial\theta} = \sum_{i=1}^{m} \left( y^{(i)} - h_{\theta}(x^{(i)}) \right)x^{(i)}
@@ -125,7 +125,7 @@ Quem tem familiaridade com regressão linear vai notar que essa equação é exa
 > $$
 > O único ponto que levanto a atenção é na terceira linha onde expando as derivadas e troco o sinal que separa as duas partes da equação, de mais por menos. Isso porque ao derivarmos $(1-g(\theta^{T}x^{(i)}))$ temos $-\frac{\partial g(\theta^{T}x^{(i)})}{\theta}$.
 
-Com a derivada temos então a nossa função de custo para poder usar em algum método como gradiente ascendente ou método de newton para poder achar o melhor conjunto de $\theta$ dado um grupo de observações.
+Com a derivada temos então a nossa função de custo para poder usar em algum método como gradiente ascendente ou método de newton que nos permite achar o melhor conjunto de $\theta$ dado um grupo de observações.
 
 Nas seções abaixo vamos explorar o uso desses algoritmos para poder resolver um problema de regressão logística.
 
@@ -287,9 +287,9 @@ Quando temos um grande volume de dados, NCG costuma ser masi rápido de Newton-C
 Podemos chamar o método como
 
 ```python
-from sklearn.linear_model import LinearRegression
+from sklearn.linear_model import LogisticRegression
 
-model = LinearRegression(
+model = LogisticRegression(
     solver="newton-cg",
     penalty="l2",
     C=1.0
@@ -307,9 +307,9 @@ Os parâmetros acima definem um modelo padrão que usa `newton-cg`, caso consult
 Podemos chamar o método como
 
 ```python
-from sklearn.linear_model import LinearRegression
+from sklearn.linear_model import LogisticRegression
 
-model = LinearRegression(
+model = LogisticRegression(
     solver="newton-cholesky",
     penalty="l2",
     C=1.0
@@ -495,9 +495,9 @@ Como dito antes, a implementação no SciKit-Learn da descida coordenada depende
 Podemos inicializar o modelo como
 
 ```python
-from sklearn.linear_model import LinearRegression
+from sklearn.linear_model import LoogisticRegression
 
-model = LinearRegression(
+model = LogisticRegression(
     solver="liblinear",
     penalty="l2",
     C=1.0
@@ -521,9 +521,9 @@ O *solver* "Algoritmo de Memória Limitada de Broyden–Fletcher–Goldfarb–Sh
 Podemos inicializar o modelo como
 
 ```python
-from sklearn.linear_model import LinearRegression
+from sklearn.linear_model import LogisticRegression
 
-model = LinearRegression(
+model = LogisticRegression(
     solver="lbfgs",
     penalty="l2",
     C=1.0
