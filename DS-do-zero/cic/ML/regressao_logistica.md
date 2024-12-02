@@ -1,8 +1,8 @@
 # Regressão Logística
 
-Você trabalha em laboratório e foi encarregado de criar um modelo que ajude pesquisadores e descobrir se dado o tamanho de nódulo na pele, aquilo pode ser, ou não um câncer. Queremos então estimar a probabilidade do nódulo ser um câncer, 0% ou 100%. Uma primeira tentativa pode ser de tentar usar um método de regressão, como a regressão linear, ao conjunto de dados, gerar um curva de regressão sobre os dados e avaliar o resultado, se for maior que 0.5, ou qualquer outro valor limite, definir como verdadeiro, caso contrário não.
+Você trabalha em laboratório e foi encarregado de criar um modelo que ajude pesquisadores a descobrir se, dado o tamanho de nódulo na pele, aquilo pode ser, ou não um câncer. Queremos então estimar a probabilidade do nódulo ser um câncer, de 0% a 100%. Uma primeira tentativa pode ser de tentar usar um método de regressão, como a regressão linear, ao conjunto de dados, gerar uma curva de regressão e avaliar o resultado, se for maior que 0.5, ou qualquer outro valor limite, definir como verdadeiro, caso contrário falso.
 
-Vamos tentar ilustrar isso com um exemplo. Digamos que tenhamos o seguinte conjunto de dados sobre o tamanho de nódulos, no eixo x temos o tamanho deles e no eixo Y definimos um valor binário como o nosso *target*, se o nódulo é maligno ou não, 0 ou 1.
+Vamos tentar ilustrar isso com um exemplo. Digamos que tenhamos o seguinte conjunto de dados sobre o tamanho de nódulos, no eixo X temos o tamanho deles e no eixo Y definimos um valor binário como o nosso *target*, se o nódulo é maligno ou não, 0 ou 1.
 
 !["distribuicao-de-nodulos"](../../_images/reg_logit_exemplo.jpg)
 *Figura 1: Conjunto de dados de exemplo.*
@@ -14,9 +14,9 @@ Rodando uma regressão temos uma curva com o seguinte formato.
 ![dados_com_reg_linear](../../_images/reg_logit_sem_outlier.jpg)
 *Figura 2: Regressão linear sobre o nosso conjunto de exemplo.*
 
-Podemos avaliar então que se o valor da regressão for maior que 0,5 clasificamos o ponto como 1, maligno, caso contrário 0, benigno. Embora tal solução pareça eficiente ela não se sustenta caso estressemos o modelo adicionando mais pontos ao conjunto de dados.
+Uma possível forma de definir se o valor estimado é 0 ou 1, é: se o valor da regressão for maior que 0,5 classificamos o ponto como 1, maligno, caso contrário 0, benigno. Embora tal solução pareça eficiente ela não se sustenta caso estressemos o modelo adicionando mais pontos ao conjunto de dados.
 
-No novo conjunto, o ponto mais a esquerda é 1, só que, como seu tamanho é desproporcionalmente maior que os outros, a regressão acaba por capturar a influência deste e perdemos muito da precisão no nosso modelo. Vários valores que deveriam ser classificados como 1 em um conjunto de dados "comportados" aqui são erroneamente classificados como 0.
+No novo conjunto, o ponto mais a esquerda é representa o caso de um nódulo maligno (1), só que, como seu tamanho é desproporcionalmente maior que os outros, a regressão acaba por capturar a influência deste e perdemos muito da precisão no nosso modelo. Vários valores que deveriam ser classificados como 1 em um conjunto de dados "comportados" aqui são erroneamente classificados como 0.
 
 ![conjunto_dados_com_outlier](../../_images/reg_logit_com_outlier.jpg)
 *Figura 3: Regressão linear sobre o conjunto com um outlier.*
@@ -35,9 +35,9 @@ Ao longo deste capítulo usarei como dados de exemplo uma pesquisa que catalogou
 
 ## Definição formal
 
-Podemos definir a regressão logística como um algoritmo usado para classificação, ele pode ser usado tanto em problemas onde há múltiplas classes; por exemplo, dada a foto de uma fruta identificar se é uma maça, banana, pera, etc; quanto binárias, 0 ou 1. Por enquanto vamos focar em problemas de classificação binária. Dizemos que o valor 1 é a presença daquilo que estamos estimando e 0 a não presença, um tumor ser maligno ou não; um email, ser spam ou não, etc.
+Podemos definir a regressão logística como um algoritmo usado para classificação, ele pode ser usado tanto em problemas onde há múltiplas classes; por exemplo, dada a foto de uma fruta identificar se é uma maçã, banana, pera, etc; quanto binárias, 0 ou 1. Por enquanto vamos focar em problemas de classificação binária. Dizemos que o valor 1 é a presença daquilo que estamos estimando e 0 a não presença, um tumor ser maligno ou não; um email, ser spam ou não; etc.
 
-Como no nosso caso estamos focando em valores binários não precisamos que nossa função atinja qualquer valor que não esteja dentro do intervalo $\{0,1\}$, aqui entra a função logística. Sua imagem é definida dentro do intervalo fechado $\{0,1\}$, a equação para sua construção é a que segue.
+Chamamos cada um dos possíveis resultados de classe (a classe em que o email é um spam, e a classe em que ele não é...), e tanto para problemas multinomiais (múltiplas classes) quanto binários (duas classes, presença ou não) queremos estimar a probabilidade de pertencimento à classe. Dessa forma queremos uma função que nos retorne valores entre 0 e 1, que podemos interpretar como a probabilidade. Aqui entra a função logística. Sua imagem é definida dentro do intervalo fechado $\{0,1\}$, a equação para sua construção é a que segue.
 
 $$
 y = \frac{1}{1+e^{-x}}
@@ -50,7 +50,9 @@ O elemento da equação que controla a "forma" da equação, isso é, o quão pa
 ![mudancas_com_param](../../_images/logit_mod.png)
 *Figura 6: Como parâmetros alteram o formato da curva.*
 
-Essas outras curvas podem se encaixar ao nosso conjunto de dados, o valor que a curva assume em um certo ponto será a nossa probabilidade de pertencer a classe 1. Mexendo no parâmetros podemos então criar diversas curvas que se encaixem na nossa distribuição de dados dentro aqueles que são 0 ou 1. Nosso objetivo é descobrir quais os melhores parâmetros que constroem a curva logística que melhor se encaixa nos dados.
+Ao mexer nos parâmetros podemos mover nossa curva. Deixá-la mais reta para valores mais altos de X, ou talvez achatá-la fazendo com que ela só assuma valores maiores que 0,5 só com valores muito grandes de X. Tudo isso, ou o oposto. Existem infinitas formas de que podemos modificar essa curva e para cada modificação existe um conjunto de dados que melhor se encaixa a ela. No nosso exemplo anterior sobre a aranhas lobo, mais para frente construíremos a curva de regressão, mas desde já eu posso dizer que, para valores de X acima de 0,6 seu resultado será maior que 0,5, pois todos os casos registrados no conjunto de dados de praais com areia maior que 0,6mm havia a presença da aranha.
+
+Em resumo, queremos encontrar o melhor conjunto de $\theta$ para um certo conjunto de dados.
 
 Definimos então um conjunto de parâmetros $\theta$ e dados $x$, ambos representados como vetores, que serão o nosso novo expoente na função logística. Como $\theta^Tx$ é um escalar, a função segue retornando valores dentro do intervalo $\{0, 1\}$.
 
@@ -58,7 +60,7 @@ $$
 h_{\theta}(x) = \frac{1}{1+e^{-\theta^Tx}}
 $$
 
-Em outros problemas como regressão linear há um fórmula que nos dá o valor ideal, porém, com regressão logística não há nenhum algoritmo que nos dá os valores ideias dos parâmetros $\theta$. Existem casos especiais onde se sabe como achar uma solução analítica para o problema de otimização, mas de forma geral ainda não se descobriu um formato ideal de curva dado um conjunto de pontos.
+Em outros problemas como regressão linear há um fórmula que nos dá o valor ideal, porém, com regressão logística não há nenhum algoritmo que nos dá os valores ideias dos parâmetros $\theta$. Existem casos especiais onde se sabe como achar uma solução analítica para o problema de otimização, mas, de forma geral, ainda não se descobriu um formato ideal de curva dado um conjunto de pontos.
 
 Nos resta então a pergunta, como achar um conjunto de $\theta$s dado que não temos uma solução analítica definida para o problema? Nesse caso temos que usar algoritmos de otimização, assim como pode ser feito com [regressão linear e descida de gradiente](regressao_linear.md#metodo-de-gradiente) (na verdade podemos usar o mesmo [método de gradiente](../../matematica/otimizadores/metodo_gradiente.md) e vamos explorar seu uso mais a frente). Contudo, antes de pularmos para os métodos vamos ver como podemos ter certeza de que há uma função que podemos otimizar e que podemos usar como função de custo para um algoritmo como descida de gradiente.
 
@@ -123,22 +125,28 @@ Quem tem familiaridade com regressão linear vai notar que essa equação é exa
 > &= \sum_{i=1}^{m} \left( y^{(i)} - g(\theta^Tx^{(i)}) \right)x^{(i)} \newline
 > \end{align}
 > $$
-> O único ponto que levanto a atenção é na terceira linha onde expando as derivadas e troco o sinal que separa as duas partes da equação, de mais por menos. Isso porque ao derivarmos $(1-g(\theta^{T}x^{(i)}))$ temos $-\frac{\partial g(\theta^{T}x^{(i)})}{\theta}$.
+> O único ponto que levanto atenção é na terceira linha onde expando as derivadas e troco o sinal que separa as duas partes da equação, de mais por menos. Isso porque ao derivarmos $(1-g(\theta^{T}x^{(i)}))$ temos $-\frac{\partial g(\theta^{T}x^{(i)})}{\theta}$.
 
 Com a derivada temos então a nossa função de custo para poder usar em algum método como gradiente ascendente ou método de newton que nos permite achar o melhor conjunto de $\theta$ dado um grupo de observações.
+
+O problema de otimização pode ser formalizado como
+
+$$
+\min \sum_{i=1}^m \left( y^{(i)} - \frac{1}{1+e^{-\theta^Tx^{(i)}}} \right) x^{(i)}
+$$
 
 Nas seções abaixo vamos explorar o uso desses algoritmos para poder resolver um problema de regressão logística.
 
 ### Implementação em Julia
 
-Mais a frente veremos como a biblioteca SciKit-Learn nos permite o uso de diversos *solvers* para resolver um problema de regressão logística, Julia, por sua vez, embora tenha bibliotecas implementadas com todos esses métodos, a principal biblioteca para resolver problemas de modelos lineares não funciona dessa forma, permitindo o uso de diversos *solvers*.
+Mais a frente veremos como a biblioteca SciKit-Learn nos permite o uso de diversos *solvers* para resolver um problema de regressão logística. Julia, por sua vez, embora tenha bibliotecas implementadas com todos esses métodos, a principal biblioteca para resolver problemas de modelos lineares não funciona dessa forma.
 
-A [GLM.jl](https://juliastats.org/GLM.jl/stable/) se baseia no conceito de modelos regulares generalizados e utiliza uma função única para otimizá-los o que importa aqui é o tipo de distribuição e "*link*" que se passa para esse método. O Iteratively Reweighted Least Squares (IRLS) usado pelo GLM.jl consegue se adaptar a todos os modelos lineares e é o usado pela implementação para resolver problemas. O uso dele assim como a conceito de modelo linear geral será em outro capítulo. Por enquanto me atenho a explicar seu uso para resolver um problema de regressão logística.
+A [GLM.jl](https://juliastats.org/GLM.jl/stable/) se baseia no conceito de modelos lineares generalizados e utiliza uma função única para otimizá-los, o que importa aqui é o tipo de distribuição e "*link*" que se passa para esse método. O Iteratively Reweighted Least Squares (IRLS), usado pelo GLM.jl, consegue se adaptar a todos os modelos lineares e é o usado pela implementação para resolver problemas deste tipo. O uso dele assim como o conceito de modelo linear generalizado será explorado em outro capítulo. Por enquanto me atenho a explicar seu uso para resolver um problema de regressão logística.
 
 ```julia
 using GLM
 
-model = glm(@formula(y~x), df, Binomial(), ProbitLink())
+model = glm(@formula(y~x), df, Binomial(), LogitLink())
 ```
 
 `@formula` é a nossa macro que define a fórmula a ser usada pelo modelo. Aqui ela relaciona como `y` como sendo dependente de `x`.
@@ -148,7 +156,7 @@ model = glm(@formula(y~x), df, Binomial(), ProbitLink())
 > [!NOTE] Estimando a presença de aranhas nas praias do Japão
 > Podemos rodar a nossa a nossa regressão logística sobre o nosso conjunto de dados e obtemos o seguinte resultado
 > ```julia
-> julia> model = glm(@formula(Y~X), data, Binomial(), ProbitLink())
+> julia> model = glm(@formula(Y~X), data, Binomial(), LogitLink())
 > StatsModels.TableRegressionModel{GeneralizedLinearModel{GLM.GlmResp{Vector{Float64}, Binomial{Float64}, LogitLink}, GLM.DensePredChol{Float64, LinearAlgebra.CholeskyPivoted{Float64, Matrix{Float64}, Vector{Int64}}}}, Matrix{Float64}} 
 > Y ~ 1 + X 
 > Coefficients: 
@@ -163,9 +171,9 @@ model = glm(@formula(y~x), df, Binomial(), ProbitLink())
 
 ## Regularização
 
-Um problema que assombra a pesquisa em aprendizado de máquina é o sobreajuste (do inglês, *overfitting*), quando a nossa curva de regressão se ajusta demais ao conjunto de dados e não consegue generalizar o problema o suficiente para gerar boas previsões. Uma forma de resolver esse problema é usando de fatores de **regularização**. Aplicamos a função de custo um fator a mais durante o treinamento que força a função a se ajustar aos dados da forma que queremos. Existem diversas formas de generalização e dependendo do *solver* que escolhemos para solucionar o problema alguns métodos de regularização podem não funcionar.
+Um problema que assombra a pesquisa em aprendizado de máquina é o sobreajuste (do inglês, *overfitting*), quando a nossa curva de regressão se ajusta demais ao conjunto de dados e não consegue generalizar o problema o suficiente para gerar boas previsões. Uma forma de resolver esse problema é usando de fatores de **regularização**. Aplicamos a função de custo um fator a mais durante o treinamento que força a função a se ajustar aos dados da forma que queremos. Existem diversas formas de generalização e, dependendo do *solver* que escolhemos, alguns métodos de regularização podem não funcionar.
 
-Chamaremos de $r(\theta)$ a função de regularização de $\theta$, adicionamos ela ao final da nossa função de de custo assim nós temos que $J(\theta) := J(\theta) + \lambda r(\theta)$, onde $\lambda$ define o quão intensa é a regularização, implementações como do SciKit-Learn usam o inverso de $\lambda$, normalmente denotado como $C$.
+Chamaremos de $r(\theta)$ a função de regularização de $\theta$, adicionamos ela ao final da nossa função de custo assim nós temos que $J(\theta) := J(\theta) + \lambda r(\theta)$, onde $\lambda$ define o quão intensa é a regularização, implementações como do SciKit-Learn usam o inverso de $\lambda$, normalmente denotado como $C$.
  
 ### $\ell_1$
 
@@ -185,11 +193,13 @@ $$
 \min_{\theta}J(\theta) \space s.t. \space r(\theta) \le k
 $$
 
-$k$ é uma constante arbitrária, para fins do nosso exemplo podemos ignorá-la. O gráfico abaixo mostra uma função de custo, no meio, $\hat{\beta}$, temos o ponto ótimo e as elipses ao redor se chamam curvas de nível, em cada uma delas o custo é constante em qualquer ponto desta. Queremos então chegar o mais perto do centro dessas elipses, só que temos um fator que restringe o quão perto podemos chegar, este é o quadrado azulado, $r(\theta) \le k$. A regularização impõe uma restrição sobre os parâmetros, geometricamente, estes tem que estar em algum lugar dentro da área delimitada pela restrição.
+$k$ é uma constante arbitrária, para fins do nosso exemplo podemos ignorá-la. O gráfico abaixo mostra uma função de custo, no meio, $\hat{\beta}$, temos o ponto ótimo, o mínimo, e as elipses ao redor se chamam **curvas de nível**, em cada uma delas o custo é constante em qualquer ponto desta. Queremos então chegar o mais perto do centro dessas elipses, só que temos um fator que restringe o quão perto podemos chegar, este é o quadrado azulado, $r(\theta) \le k$. A regularização impõe uma restrição sobre os parâmetros, geometricamente, estes tem que estar em algum lugar dentro da área delimitada pela restrição.
 
 ![curvas-de-nivel-lasso](../../_images/level_curves_lasso.png)
 
 Qual é então o ponto mais perto do ponto ótimo que podemos chegar dada a nossa restrição? Como a área definida pela regularização LASSO é "pontuda", é muito mais provável que o ponto mais perto de $\hat{\beta}$ seja uma das pontas, e justamente nesses pontos alguns dos valores dos parâmetros tendem a cair a zero.
+
+Agora, porque escolheríamos um ponto que parece mais longe do ótimo que outros? Esse é a pergunta mais importante no que tange a regularização, para exemplos como esse, com somente duas variáveis, realmente regularização não só é inútil como traz resultados piores. Vemos a utilidade quando começamos a adicionar variáveis ao nosso processo, o uso da regularização LASO nos permite realizar a seleção de features, e não somente, ao restringir a forma como os nossos parâmetros crescem impede o modelo de se sobreajustar aos dados visto que agora eles não podem assumir qualquer valor.
 
 ### $\ell_2$
 
