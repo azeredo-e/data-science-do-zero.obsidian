@@ -15,6 +15,20 @@ Um segundo ponto que chama a atenção é que na equação uso $\eta^T$, isso po
 
 Por fim, fazemos aqui uma afirmação então, para um dado conjunto de $a(y)$, $b(y)$ e $T(y)$, caso aplicados a função acima e estes integrem $y$ à 1, o resultado é a função densidade de probabilidade (FDP) de alguma família de distribuições e tal família pertence a família exponencial. Por exemplo, dado uma certa escolha dos nossos componentes podemos ter a família de distribuições Gaussinas, e a escolha do $\eta$ determina exatamente qual membro desta famĺia que estamos lidando com.
 
+## Propriedades
+
+Há uma série de propriedades que seguem da família exponencial. Vamos aqui mostrar algumas das mais relevantes
+
+**Funções estritamente côncavas**
+
+Para uma função pertencente a família exponencial, caso se aplique MLE (*maximun likelihood estimation*) para se achar os parâmetros $\eta$ da distribuição, o resultado do problema de otmização é estritamente côncavo, ou seja, ao aplicar um método como descida de gradiente, ele não ficará preso em mínimos locais e tenderá ao máximo global.
+
+De forma inversa, o ao usar o log da verossimilhança, o problema de otimização resultante é estritamente convexo.
+
+**Esperança e Variância**
+
+$E(y;\eta) = \frac{\partial a(\eta)}{\partial \eta}$ e $Var(y;\eta) = \frac{\partial^2 a(\eta)}{\partial \eta^2}$ o que é extremamente útil já que não precisamos integrar a FDP para acharmos tais valores.
+
 ## Famílias de distribuições
 
 Ao longo das próximas sessões irei demonstrar como que algumas famílias de distribuições típicas da estatística pertencem a família exponencial.
@@ -48,7 +62,7 @@ $$
 b(y) &= 1 \newline
 \eta &= \log\left( \frac{\phi}{1-\phi} \right) \implies \phi=\frac{1}{1-e^{-\eta}} \newline
 T(y) &= y \newline
-a(y) &= - \log(1-\phi) \newline
+a(\eta) &= - \log(1-\phi) \newline
 &= \log(1+e^{\eta})
 \end{align}
 $$
@@ -83,7 +97,7 @@ $$
 b(y) &= \frac{1}{\sqrt{2\pi}}\exp\left( -\frac{1}{2}y^2 \right) \newline
 \eta &= \mu \newline
 T(y) &= y \newline
-a(y) &= \frac{\mu^2}{2} \newline
+a(\eta) &= \frac{\mu^2}{2} \newline
 &= \frac{\eta^2}{2}
 \end{align}
 $$
